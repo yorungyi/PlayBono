@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import ParentGate from "@/components/ParentGate";
-import { ensureAnonAuth, db } from "@/lib/firebase";
+import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { collection, doc, getDoc, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { defaultUserDoc, UserDoc } from "@/lib/model";
 
@@ -17,6 +17,11 @@ export default function ParentsPage(){
   useEffect(()=>{
     if (!passed) return;
     (async ()=>{
+      const db = getDbClient();
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       const u = await ensureAnonAuth();
       const userRef = doc(db, "users", u.uid);
       const snap = await getDoc(userRef);

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
-import { ensureAnonAuth, db, getRcNumber } from "@/lib/firebase";
+import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, nextStage, UserDoc } from "@/lib/model";
 import { Difficulty, generateDailyQuestions, ymd, Op } from "@/lib/quiz";
 
@@ -39,6 +39,11 @@ export default function DailyMissionPage(){
 
   useEffect(() => {
     (async () => {
+      const db = getDbClient();
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       const u = await ensureAnonAuth();
       setUid(u.uid);
 
@@ -99,6 +104,8 @@ export default function DailyMissionPage(){
 
   async function submit(){
     if (!current) return;
+    const db = getDbClient();
+    if (!db) return;
     const n = Number(input);
     if (!Number.isFinite(n)) return;
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { ensureAnonAuth, db } from "@/lib/firebase";
+import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { defaultUserDoc, UserDoc } from "@/lib/model";
 
 export default function SettingsPage(){
@@ -13,6 +13,11 @@ export default function SettingsPage(){
 
   useEffect(()=>{
     (async ()=>{
+      const db = getDbClient();
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       const u = await ensureAnonAuth();
       const userRef = doc(db, "users", u.uid);
       const snap = await getDoc(userRef);
@@ -22,6 +27,8 @@ export default function SettingsPage(){
   }, []);
 
   async function save(){
+    const db = getDbClient();
+    if (!db) return;
     const u = await ensureAnonAuth();
     const userRef = doc(db, "users", u.uid);
     await updateDoc(userRef, {

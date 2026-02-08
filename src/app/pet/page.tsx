@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { ensureAnonAuth, db } from "@/lib/firebase";
+import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, UserDoc } from "@/lib/model";
 
 function PetArt({stage}:{stage:string}){
@@ -28,6 +28,11 @@ export default function PetPage(){
 
   useEffect(()=>{
     (async ()=>{
+      const db = getDbClient();
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       const u = await ensureAnonAuth();
       const userRef = doc(db, "users", u.uid);
       const snap = await getDoc(userRef);

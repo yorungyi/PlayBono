@@ -12,15 +12,28 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
-export function getFirebaseApp() {
+function getFirebaseApp() {
+  if (typeof window === "undefined") return null;
   if (!getApps().length) initializeApp(firebaseConfig);
   return getApps()[0]!;
 }
 
-export const auth = getAuth(getFirebaseApp());
-export const db = getFirestore(getFirebaseApp());
+export function getAuthClient() {
+  const app = getFirebaseApp();
+  return app ? getAuth(app) : null;
+}
+
+export function getDbClient() {
+  const app = getFirebaseApp();
+  return app ? getFirestore(app) : null;
+}
 
 export async function ensureAnonAuth(): Promise<User> {
+  const auth = getAuthClient();
+  if (!auth) {
+    throw new Error("Firebase auth is client-only");
+  }
+
   const current = auth.currentUser;
   if (current) return current;
 
@@ -39,8 +52,11 @@ export async function ensureAnonAuth(): Promise<User> {
 
 // Remote Config (client only)
 export async function getRcNumber(key: string, fallback: number): Promise<number> {
+  if (typeof window === "undefined") return fallback;
   try {
-    const rc = getRemoteConfig(getFirebaseApp());
+    const app = getFirebaseApp();
+    if (!app) return fallback;
+    const rc = getRemoteConfig(app);
     rc.settings.minimumFetchIntervalMillis = 60_000; // 1 min in dev; increase in prod
     await fetchAndActivate(rc);
     const v = getValue(rc, key);
@@ -52,8 +68,11 @@ export async function getRcNumber(key: string, fallback: number): Promise<number
 }
 
 export async function getRcBool(key: string, fallback: boolean): Promise<boolean> {
+  if (typeof window === "undefined") return fallback;
   try {
-    const rc = getRemoteConfig(getFirebaseApp());
+    const app = getFirebaseApp();
+    if (!app) return fallback;
+    const rc = getRemoteConfig(app);
     rc.settings.minimumFetchIntervalMillis = 60_000;
     await fetchAndActivate(rc);
     const v = getValue(rc, key);
