@@ -52,17 +52,23 @@ function genWorksheet(grade:number, op:string, difficulty:string, count=20){
   return out;
 }
 
-export async function generateMetadata({ params }:{ params: Params }) {
-  const grade = clampGrade(Number(params.grade));
-  const title = `초${grade} ${opLabel(params.op)} 연습문제 (${diffLabel(params.difficulty)}) | 수학펫 워크시트`;
-  const description = `초${grade} ${opLabel(params.op)} ${diffLabel(params.difficulty)} 워크시트. 예시 문제 20개와 프린트 기능 제공.`;
+export async function generateMetadata(
+  { params }:{ params: Promise<Params> }
+) {
+  const resolvedParams = await params;
+  const grade = clampGrade(Number(resolvedParams.grade));
+  const title = `초${grade} ${opLabel(resolvedParams.op)} 연습문제 (${diffLabel(resolvedParams.difficulty)}) | 수학펫 워크시트`;
+  const description = `초${grade} ${opLabel(resolvedParams.op)} ${diffLabel(resolvedParams.difficulty)} 워크시트. 예시 문제 20개와 프린트 기능 제공.`;
   return { title, description };
 }
 
-export default function WorksheetPage({ params }:{ params: Params }){
-  const grade = clampGrade(Number(params.grade));
-  const op = params.op;
-  const difficulty = params.difficulty;
+export default async function WorksheetPage(
+  { params }:{ params: Promise<Params> }
+){
+  const resolvedParams = await params;
+  const grade = clampGrade(Number(resolvedParams.grade));
+  const op = resolvedParams.op;
+  const difficulty = resolvedParams.difficulty;
 
   const list = genWorksheet(grade, op, difficulty, 20);
 
