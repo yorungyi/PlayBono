@@ -32,6 +32,11 @@ firebase init hosting  # public directory: out
 firebase deploy --only hosting
 ```
 
+## 4-1) Cloudflare Pages 배포 설정
+- Build command: `npm run export`
+- Build output directory: `out`
+- Root directory: `/`
+
 ## 5) AdSense
 - /worksheets, /practice 페이지에서만 AdSenseSlot이 렌더링되도록 되어 있습니다.
 - NPA(비개인화) 기본값: requestNonPersonalizedAds=1 로 설정합니다.
