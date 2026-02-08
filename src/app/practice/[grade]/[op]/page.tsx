@@ -8,6 +8,9 @@ export function generateStaticParams() {
   return out;
 }
 
-export default function Page({ params }:{ params:{ grade:string; op:string } }) {
-  return <PracticeClient params={params} />;
+export default async function Page(
+  { params }: { params: Promise<{ grade: string; op: string }> }
+) {
+  const resolvedParams = await params;
+  return <PracticeClient params={resolvedParams} />;
 }
