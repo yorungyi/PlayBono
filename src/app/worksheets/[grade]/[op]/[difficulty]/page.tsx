@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdSenseSlot from "@/components/AdSenseSlot";
+import PrintButton from "@/components/PrintButton";
 
 type Params = { grade: string; op: string; difficulty: string };
 
@@ -87,7 +88,7 @@ export default async function WorksheetPage(
 
           <div style={{display:"flex", gap:10, marginTop:14, flexWrap:"wrap"}}>
             <Link className="btn btnPrimary" href="/mission/daily">오늘의 미션 시작</Link>
-            <button className="btn" onClick={()=>window.print()}>프린트</button>
+            <PrintButton />
             <Link className="btn btnGhost" href={`/practice/${grade}/${op}`}>연습(인터랙티브)</Link>
           </div>
 
