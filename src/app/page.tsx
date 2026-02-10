@@ -21,7 +21,7 @@ export default function HomePage(){
         return;
       }
       const u = await ensureAnonAuth();
-      const snap = await getDoc(doc(db, \"users\", u.uid));
+      const snap = await getDoc(doc(db, "users", u.uid));
       if (snap.exists()) setUser(snap.data() as UserDoc);
       setLoadingPet(false);
     })();
