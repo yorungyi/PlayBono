@@ -31,6 +31,8 @@ export default function DailyMissionPage(){
   const [result, setResult] = useState<{correct:number; total:number; durationSec:number} | null>(null);
   const [reward, setReward] = useState<{ coins:number; stickerId?: string } | null>(null);
   const [soundOn, setSoundOn] = useState(true);
+  const [volume, setVolume] = useState(0.4);
+  const [flash, setFlash] = useState<"ok"|"no"|null>(null);
 
   const today = useMemo(()=>ymd(new Date()), []);
 
@@ -162,7 +164,7 @@ export default function DailyMissionPage(){
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(volume, ctx.currentTime + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
     osc.stop(ctx.currentTime + 0.2);
     osc.onended = () => ctx.close();
@@ -175,6 +177,8 @@ export default function DailyMissionPage(){
 
     const correct = n === current.answer;
     playTone(correct ? "ok" : "no");
+    setFlash(correct ? "ok" : "no");
+    setTimeout(()=>setFlash(null), 420);
     const next = [...answers, { id: current.id, userAnswer: n, correct }];
     setAnswers(next);
     setInput("");
@@ -383,6 +387,17 @@ export default function DailyMissionPage(){
             <button className={"btn btnSoft"} onClick={()=>setSoundOn(v=>!v)}>
               {soundOn ? "소리 켜짐" : "소리 꺼짐"}
             </button>
+            <div className="missionVolume">
+              <span>볼륨</span>
+              <input
+                type="range"
+                min="0"
+                max="0.6"
+                step="0.05"
+                value={volume}
+                onChange={(e)=>setVolume(Number(e.target.value))}
+              />
+            </div>
           </div>
           <div className="missionProgress">
             <div className="missionProgressBar">
@@ -400,10 +415,12 @@ export default function DailyMissionPage(){
         <div className="grid2">
           <div className="card missionQuestionCard">
             <div className="badge">문제 {idx+1} / {total}</div>
-            <div className="missionQuestion">
-              <div className="missionBubble">준비!</div>
-              <div className="missionText">{current?.text ?? "문제를 불러오는 중이에요."}</div>
-            </div>
+          <div className="missionQuestion">
+            <div className="missionBubble">준비!</div>
+            <div className="missionText">{current?.text ?? "문제를 불러오는 중이에요."}</div>
+            {flash && <div className={`missionFlash ${flash}`}>{flash === "ok" ? "정답!" : "다시!"}</div>}
+            {flash === "ok" && <div className="missionBurst" aria-hidden />}
+          </div>
 
             <div className="missionAnswerRow">
               <input

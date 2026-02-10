@@ -152,6 +152,9 @@ a{color:inherit; text-decoration:none}
 }
 .missionProgress{margin-top:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .missionSound{margin-top:10px}
+.missionSound{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.missionVolume{display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; color:#9a5a3a}
+.missionVolume input{accent-color: var(--primary)}
 .missionProgressBar{
   flex:1 1 220px;
   height:12px; background:#ffe7d9; border-radius:999px; overflow:hidden;
@@ -181,6 +184,45 @@ a{color:inherit; text-decoration:none}
   z-index:0;
 }
 .missionQuestion{position:relative; z-index:1; display:grid; gap:10px; margin:12px 0 6px 0}
+.missionFlash{
+  position:absolute; right:0; top:-6px;
+  padding:6px 10px; border-radius:12px; font-weight:900; font-size:13px;
+  animation: pop .35s ease;
+}
+.missionFlash.ok{background:#e9fbe9; color:#15803d; border:1px solid #bbf7d0}
+.missionFlash.no{background:#fff1f2; color:#be123c; border:1px solid #fecdd3}
+.missionBurst{
+  position:absolute; right:18px; top:12px; width:10px; height:10px;
+}
+.missionBurst::before,
+.missionBurst::after{
+  content:""; position:absolute; inset:0; border-radius:50%;
+  animation: burst 0.6s ease-out;
+}
+.missionBurst::before{
+  box-shadow:
+    0 -16px 0 0 #fcd34d,
+    12px -10px 0 0 #86efac,
+    16px 2px 0 0 #93c5fd,
+    6px 14px 0 0 #fca5a5,
+    -6px 14px 0 0 #a7f3d0,
+    -16px 2px 0 0 #f9a8d4,
+    -12px -10px 0 0 #fbbf24;
+}
+.missionBurst::after{
+  width:18px; height:18px; left:-4px; top:-4px;
+  border-radius:10px 10px 6px 6px; background:#fecaca; transform:rotate(45deg);
+  opacity:.8;
+}
+@keyframes burst{
+  0%{transform:scale(.4); opacity:0}
+  60%{transform:scale(1); opacity:1}
+  100%{transform:scale(1.2); opacity:0}
+}
+@keyframes pop{
+  0%{transform:translateY(-4px) scale(.95); opacity:0}
+  100%{transform:translateY(0) scale(1); opacity:1}
+}
 .missionBubble{
   display:inline-flex; align-items:center; justify-content:center;
   width:84px; height:36px; border-radius:999px;
@@ -332,6 +374,18 @@ a{color:inherit; text-decoration:none}
 .petArt.hatch{background:linear-gradient(180deg, #dcfce7 0%, #f0fdf4 100%)}
 .petArt.evo1{background:linear-gradient(180deg, #fef9c3 0%, #fffbeb 100%)}
 .petArt.evo2{background:linear-gradient(180deg, #ffe4e6 0%, #fff1f2 100%)}
+.petArt.egg::after{
+  content:""; position:absolute; bottom:16px; width:70px; height:10px; border-radius:999px;
+  background:linear-gradient(90deg, #cbd5f5, #e2e8f0);
+}
+.petArt.hatch::after{
+  content:""; position:absolute; top:16px; width:26px; height:12px; border-radius:0 0 12px 12px;
+  background:#fde68a; border:2px solid #fcd34d;
+}
+.petArt.evo2::after{
+  content:""; position:absolute; bottom:20px; right:18px; width:32px; height:16px; border-radius:999px;
+  background:#fecaca; border:2px solid #fca5a5; transform:rotate(12deg);
+}
 .petFace{
   width:74px; height:74px; border-radius:26px; background:#fff; border:2px solid #f1f5f9;
   display:flex; align-items:center; justify-content:center; gap:12px; position:relative;
@@ -354,6 +408,9 @@ a{color:inherit; text-decoration:none}
 }
 .petArt.evo1 .petFace::before{left:6px; transform:rotate(-8deg)}
 .petArt.evo1 .petFace::after{right:6px; transform:rotate(8deg)}
+.petArt.evo1 .petFace::after{
+  box-shadow:0 10px 0 -6px #fef08a;
+}
 .petArt.evo2 .petFace::before,
 .petArt.evo2 .petFace::after{
   content:""; position:absolute; top:-8px; width:18px; height:12px; border-radius:12px 12px 2px 2px;
