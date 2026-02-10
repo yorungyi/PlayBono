@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#bae6fd"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <path d="M0 230c60-20 120-20 180 0s120 20 180 0 120-20 180 0v130H0z" fill="#93c5fd"/>
+  <path d="M0 260c80-18 160-18 240 0s160 18 240 0 120-18 160 0v100H0z" fill="#60a5fa" opacity="0.8"/>
+  <path d="M420 160c20-10 40-10 60 0" stroke="#1f2937" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="470" cy="155" r="4" fill="#1f2937"/>
+  <text x="56" y="320" font-size="28" font-family="sans-serif" fill="#1e3a8a">바다 테마</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#ecfccb"/>
+      <stop offset="1" stop-color="#bbf7d0"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <path d="M80 240l40-80 40 80z" fill="#86efac" stroke="#16a34a" stroke-width="4"/>
+  <path d="M200 250l50-100 50 100z" fill="#4ade80" stroke="#15803d" stroke-width="4"/>
+  <path d="M360 240l40-80 40 80z" fill="#86efac" stroke="#16a34a" stroke-width="4"/>
+  <rect x="116" y="240" width="8" height="30" fill="#7c4a2b"/>
+  <rect x="246" y="250" width="8" height="30" fill="#7c4a2b"/>
+  <rect x="396" y="240" width="8" height="30" fill="#7c4a2b"/>
+  <text x="56" y="320" font-size="28" font-family="sans-serif" fill="#14532d">숲 테마</text>
+</svg>

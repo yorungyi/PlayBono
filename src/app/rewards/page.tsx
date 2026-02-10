@@ -172,6 +172,18 @@ export default function RewardsPage(){
           </div>
         )}
       </div>
+      <div className="card rewardsAlbum">
+        <div className="h2">스티커 앨범</div>
+        <p className="p">모은 스티커를 한 장씩 넘겨보세요.</p>
+        <div className="albumRow">
+          {STICKER_CATALOG.slice(0, 6).map(s => (
+            <div key={s.id} className="albumCard">
+              <img src={s.image} alt={s.name} />
+              <div className="albumName">{s.name}</div>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="card rewardsBadges">
         <div className="h2">배지</div>
         <div className="badgeGrid">

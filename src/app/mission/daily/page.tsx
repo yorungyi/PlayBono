@@ -6,7 +6,7 @@ import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firest
 import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, nextStage, UserDoc } from "@/lib/model";
 import { Difficulty, generateDailyQuestions, ymd } from "@/lib/quiz";
-import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser, loadRewards, saveRewards, pickRandomStickerId, STICKER_CATALOG, addDailyLog, addBadge } from "@/lib/offline";
+import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser, loadRewards, saveRewards, pickRandomStickerId, STICKER_CATALOG, addDailyLog, addBadge, BADGES } from "@/lib/offline";
 
 function clampGrade(n:number): 1|2|3|4 {
   if (n<=1) return 1;
@@ -34,6 +34,7 @@ export default function DailyMissionPage(){
   const [volume, setVolume] = useState(0.4);
   const [flash, setFlash] = useState<"ok"|"no"|null>(null);
   const [jump, setJump] = useState(false);
+  const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const theme = useMemo(() => {
     const hash = today.split("-").join("");
     const n = Number(hash) % 3;
@@ -266,10 +267,19 @@ export default function DailyMissionPage(){
       }
 
       // badges
-      addBadge("first");
-      if (correctCount === qs.length) addBadge("perfect");
-      if (newStreak >= 3) addBadge("streak3");
-      if (newStreak >= 7) addBadge("streak7");
+      const newly: string[] = [];
+      const before = loadRewards().badges ?? [];
+      const award = (id: string) => {
+        if (!before.includes(id)) {
+          addBadge(id);
+          newly.push(id);
+        }
+      };
+      award("first");
+      if (correctCount === qs.length) award("perfect");
+      if (newStreak >= 3) award("streak3");
+      if (newStreak >= 7) award("streak7");
+      if (newly.length) setEarnedBadges(newly);
 
       if (localMode) {
         const dailyLocal = { seed: 0, dateYmd: today, questions: qs, answers: next, score };
@@ -375,6 +385,20 @@ export default function DailyMissionPage(){
               )}
             </div>
           )}
+          {earnedBadges.length > 0 && (
+            <div className="missionBadges">
+              {earnedBadges.map(id => {
+                const b = BADGES.find(x => x.id === id);
+                if (!b) return null;
+                return (
+                  <div key={id} className="badgeEarned">
+                    <span className="badgeIcon">{b.icon}</span>
+                    <span className="badgeName">{b.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           <div className="hr" />
           <div className="kpi">
             <div className="item"><div className="v">{stageLabel(user.pet.stage)}</div><div className="t">현재 단계</div></div>
@@ -441,6 +465,9 @@ export default function DailyMissionPage(){
               <span style={{width:`${progressPct}%`}} />
             </div>
             <div className="missionProgressMeta">{answered}/{total} 완료</div>
+          </div>
+          <div className="missionThemeArt">
+            <img src={`/illustrations/${theme}.svg`} alt={`${theme} 테마`} />
           </div>
           <div className="missionDots">
             {Array.from({length: total}).map((_, i)=>(
