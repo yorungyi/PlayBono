@@ -7,18 +7,15 @@ import { defaultUserDoc, stageLabel, UserDoc } from "@/lib/model";
 import { loadLocalUser } from "@/lib/offline";
 
 function PetArt({stage}:{stage:string}){
-  const size = 140;
-  const bg = stage === "egg" ? "#e0f2fe" : stage === "hatch" ? "#dcfce7" : stage === "evo1" ? "#fef9c3" : "#ffe4e6";
-  const eye = stage === "egg" ? "…" : stage === "hatch" ? "• •" : stage === "evo1" ? "◕ ◕" : "★ ★";
-  const mouth = stage === "egg" ? "" : stage === "hatch" ? "ᴗ" : "▽";
+  const label = stage === "egg" ? "알" : stage === "hatch" ? "병아리" : stage === "evo1" ? "토끼" : "여우";
   return (
-    <div className="center" style={{
-      width:size, height:size, borderRadius:28, background:bg, border:"1px solid #e5e7eb", boxShadow:"var(--shadow)"
-    }}>
-      <div style={{textAlign:"center"}}>
-        <div style={{fontSize:34, fontWeight:900}}>{eye}</div>
-        <div style={{fontSize:28, fontWeight:900}}>{mouth}</div>
+    <div className={`petArt ${stage}`} aria-label={label}>
+      <div className="petFace">
+        <div className="petEye left" />
+        <div className="petEye right" />
+        <div className="petMouth" />
       </div>
+      <div className="petLabel">{label}</div>
     </div>
   );
 }

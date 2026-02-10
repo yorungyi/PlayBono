@@ -29,9 +29,9 @@ export const defaultUserDoc: UserDoc = {
 
 export function stageLabel(stage: PetStage) {
   if (stage === "egg") return "알";
-  if (stage === "hatch") return "부화";
-  if (stage === "evo1") return "진화 1";
-  return "진화 2";
+  if (stage === "hatch") return "병아리";
+  if (stage === "evo1") return "토끼";
+  return "여우";
 }
 
 export function nextStage(stage: PetStage): PetStage {

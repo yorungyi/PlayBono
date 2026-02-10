@@ -15,19 +15,19 @@ export type RewardState = {
   lastDailyRewardYmd?: string;
 };
 
-export const STICKER_CATALOG: { id: string; name: string; color: string }[] = [
-  { id: "star", name: "반짝별", color: "#ffd166" },
-  { id: "cloud", name: "구름", color: "#a5f3fc" },
-  { id: "leaf", name: "잎새", color: "#86efac" },
-  { id: "rocket", name: "로켓", color: "#fca5a5" },
-  { id: "planet", name: "행성", color: "#c4b5fd" },
-  { id: "balloon", name: "풍선", color: "#fcd34d" },
-  { id: "fish", name: "물고기", color: "#93c5fd" },
-  { id: "puzzle", name: "퍼즐", color: "#f9a8d4" },
-  { id: "crown", name: "왕관", color: "#fbbf24" },
-  { id: "dice", name: "주사위", color: "#fdba74" },
-  { id: "gem", name: "보석", color: "#a7f3d0" },
-  { id: "music", name: "음표", color: "#fda4af" },
+export const STICKER_CATALOG: { id: string; name: string; color: string; theme: "ocean"|"space"|"forest" }[] = [
+  { id: "star", name: "반짝별", color: "#ffd166", theme: "space" },
+  { id: "rocket", name: "로켓", color: "#fca5a5", theme: "space" },
+  { id: "planet", name: "행성", color: "#c4b5fd", theme: "space" },
+  { id: "cloud", name: "구름", color: "#a5f3fc", theme: "space" },
+  { id: "balloon", name: "풍선", color: "#fcd34d", theme: "forest" },
+  { id: "leaf", name: "잎새", color: "#86efac", theme: "forest" },
+  { id: "puzzle", name: "퍼즐", color: "#f9a8d4", theme: "forest" },
+  { id: "crown", name: "왕관", color: "#fbbf24", theme: "forest" },
+  { id: "fish", name: "물고기", color: "#93c5fd", theme: "ocean" },
+  { id: "gem", name: "보석", color: "#a7f3d0", theme: "ocean" },
+  { id: "dice", name: "주사위", color: "#fdba74", theme: "ocean" },
+  { id: "music", name: "음표", color: "#fda4af", theme: "forest" },
 ];
 
 type LocalState = {
@@ -142,4 +142,39 @@ export function pickRandomStickerId(owned: string[]) {
   const list = pool.length ? pool : STICKER_CATALOG.map(s => s.id);
   const pick = list[Math.floor(Math.random() * list.length)];
   return pick;
+}
+
+function hashSeed(input: string) {
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+export function getDailyShop(dateYmd: string, count = 3) {
+  const seed = hashSeed(`shop|${dateYmd}`);
+  const items = [...STICKER_CATALOG];
+  const picks: { id: string; price: number }[] = [];
+  let s = seed;
+  for (let i = 0; i < count; i++) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const idx = s % items.length;
+    const pick = items.splice(idx, 1)[0];
+    const price = 8 + (s % 8);
+    picks.push({ id: pick.id, price });
+  }
+  return picks;
+}
+
+export function buySticker(id: string, price: number) {
+  const state = readState();
+  if (state.rewards.coins < price) return { ok: false, rewards: state.rewards };
+  if (!state.rewards.stickers.includes(id)) {
+    state.rewards.stickers.push(id);
+  }
+  state.rewards.coins -= price;
+  writeState(state);
+  return { ok: true, rewards: state.rewards };
 }

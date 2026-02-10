@@ -19,7 +19,7 @@ export default function HomePage(){
           <div className="kpi" style={{marginTop:16}}>
             <div className="item"><div className="v">초1~초4</div><div className="t">학년 지원</div></div>
             <div className="item"><div className="v">10문제</div><div className="t">데일리 미션</div></div>
-            <div className="item"><div className="v">스티커·코인</div><div className="t">오늘 보상</div></div>
+            <div className="item"><div className="v">알→병아리→토끼→여우</div><div className="t">펫 성장</div></div>
           </div>
           <div className="small" style={{marginTop:12}}>
             ※ 워크시트/연습 페이지에만 광고가 표시됩니다. 미션 화면은 광고를 최소화합니다.

@@ -219,6 +219,22 @@ a{color:inherit; text-decoration:none}
 }
 .missionError{padding:20px; border:1px solid #ffd1d1; background:linear-gradient(180deg, #fff 0%, #fff5f5 100%)}
 .missionResult{padding:20px}
+.missionResult{position:relative; overflow:hidden}
+.missionResult::before{
+  content:"";
+  position:absolute; inset:-20% -10% auto auto; width:260px; height:260px; opacity:.6;
+  background:
+    radial-gradient(circle at 20% 30%, #ffd166 0 8px, transparent 9px),
+    radial-gradient(circle at 70% 20%, #93c5fd 0 7px, transparent 8px),
+    radial-gradient(circle at 40% 70%, #fca5a5 0 7px, transparent 8px),
+    radial-gradient(circle at 80% 60%, #86efac 0 6px, transparent 7px);
+  animation: floaty 3s ease-in-out infinite;
+}
+@keyframes floaty{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(6px)}
+  100%{transform:translateY(0)}
+}
 .missionStars{display:flex; gap:6px; font-size:22px; color:#ffb703; margin-top:8px}
 .missionStars .star{filter: drop-shadow(0 3px 4px rgba(255,183,3,.4))}
 .missionReward{
@@ -244,6 +260,7 @@ a{color:inherit; text-decoration:none}
 .coinLabel{font-size:12px; font-weight:800; color:#9a5a3a}
 .coinValue{font-size:26px; font-weight:900; color:#b4532a}
 .rewardsBoard{padding:18px}
+.rewardsTabs{display:flex; gap:8px; flex-wrap:wrap}
 .rewardsGrid{display:grid; gap:12px; grid-template-columns:repeat(2, 1fr)}
 @media(min-width:700px){ .rewardsGrid{grid-template-columns:repeat(4, 1fr)} }
 .stickerCard{
@@ -255,6 +272,67 @@ a{color:inherit; text-decoration:none}
 .stickerName{font-weight:900}
 .stickerLock{font-size:12px; color:#94a3b8; font-weight:800}
 .rewardsCTA{padding:18px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap}
+.rewardsShop{padding:18px; display:grid; gap:14px}
+.shopGrid{display:grid; gap:12px; grid-template-columns:repeat(2, 1fr)}
+@media(min-width:700px){ .shopGrid{grid-template-columns:repeat(3, 1fr)} }
+.shopCard{
+  padding:14px; border-radius:16px; border:1px solid #e5e7eb; background:#fff;
+  display:grid; gap:8px; justify-items:center; text-align:center;
+}
+.shopIcon{width:46px; height:46px; border-radius:16px; border:1px solid rgba(31,41,55,.08)}
+.shopName{font-weight:900}
+.shopPrice{font-size:12px; font-weight:800; color:#9a5a3a}
+.toast{
+  position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
+  background:#1f2937; color:white; padding:10px 14px; border-radius:14px; font-weight:800;
+  box-shadow:0 10px 24px rgba(31,41,55,.35);
+  animation: toastIn .2s ease;
+}
+@keyframes toastIn{
+  from{transform:translateX(-50%) translateY(6px); opacity:0}
+  to{transform:translateX(-50%) translateY(0); opacity:1}
+}
+
+.petArt{
+  width:150px; height:150px; border-radius:32px; position:relative;
+  border:1px solid #e5e7eb; box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px;
+  transition: transform .2s ease;
+}
+.petArt:hover{transform: translateY(-2px)}
+.petArt.egg{background:linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%)}
+.petArt.hatch{background:linear-gradient(180deg, #dcfce7 0%, #f0fdf4 100%)}
+.petArt.evo1{background:linear-gradient(180deg, #fef9c3 0%, #fffbeb 100%)}
+.petArt.evo2{background:linear-gradient(180deg, #ffe4e6 0%, #fff1f2 100%)}
+.petFace{
+  width:74px; height:74px; border-radius:26px; background:#fff; border:2px solid #f1f5f9;
+  display:flex; align-items:center; justify-content:center; gap:12px; position:relative;
+}
+.petArt.egg .petFace{border-radius:30px}
+.petEye{
+  width:10px; height:10px; border-radius:50%; background:#1f2937;
+  box-shadow:0 2px 0 rgba(31,41,55,.1);
+}
+.petMouth{
+  position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+  width:16px; height:8px; border-radius:0 0 12px 12px; border:2px solid #1f2937; border-top:0;
+}
+.petArt.hatch .petMouth{width:18px; height:10px; border-radius:0 0 16px 16px}
+.petArt.evo1 .petFace::before,
+.petArt.evo1 .petFace::after{
+  content:""; position:absolute; top:-10px; width:16px; height:16px; border-radius:6px;
+  background:#fff; border:2px solid #f1f5f9;
+}
+.petArt.evo1 .petFace::before{left:6px; transform:rotate(-8deg)}
+.petArt.evo1 .petFace::after{right:6px; transform:rotate(8deg)}
+.petArt.evo2 .petFace::before,
+.petArt.evo2 .petFace::after{
+  content:""; position:absolute; top:-8px; width:18px; height:12px; border-radius:12px 12px 2px 2px;
+  background:#fff; border:2px solid #f1f5f9;
+}
+.petArt.evo2 .petFace::before{left:4px; transform:rotate(-12deg)}
+.petArt.evo2 .petFace::after{right:4px; transform:rotate(12deg)}
+.petLabel{font-weight:900; color:#7c4a2b}
 
 @keyframes shimmer{
   0%{background-position:0% 0%}

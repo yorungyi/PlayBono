@@ -1,10 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { loadRewards, STICKER_CATALOG } from "@/lib/offline";
+import { useMemo, useState } from "react";
+import { getDailyShop, loadRewards, buySticker, STICKER_CATALOG } from "@/lib/offline";
+import { ymd } from "@/lib/quiz";
 
 export default function RewardsPage(){
-  const rewards = loadRewards();
+  const [rewards, setRewards] = useState(loadRewards());
+  const [theme, setTheme] = useState<"space"|"ocean"|"forest">("space");
+  const [toast, setToast] = useState<string | null>(null);
+  const today = useMemo(()=>ymd(new Date()), []);
+  const shopItems = useMemo(()=>getDailyShop(today, 3), [today]);
+
+  function showToast(msg: string){
+    setToast(msg);
+    setTimeout(()=>setToast(null), 1200);
+  }
+
+  function handleBuy(id: string, price: number){
+    const res = buySticker(id, price);
+    if (!res.ok) {
+      showToast("코인이 부족해요!");
+      return;
+    }
+    setRewards(res.rewards);
+    showToast("스티커 획득!");
+  }
+
+  const stickers = STICKER_CATALOG.filter(s => s.theme === theme);
   return (
     <main className="container">
       <div className="card rewardsHeader">
@@ -20,15 +43,45 @@ export default function RewardsPage(){
       </div>
 
       <div className="card rewardsBoard">
-        <div className="h2">스티커 컬렉션</div>
+        <div className="rewardsTabs">
+          <button className={"btn" + (theme === "space" ? " btnPrimary" : "")} onClick={()=>setTheme("space")}>우주</button>
+          <button className={"btn" + (theme === "ocean" ? " btnPrimary" : "")} onClick={()=>setTheme("ocean")}>바다</button>
+          <button className={"btn" + (theme === "forest" ? " btnPrimary" : "")} onClick={()=>setTheme("forest")}>숲</button>
+        </div>
+        <div className="h2" style={{marginTop:10}}>스티커 컬렉션</div>
         <div className="rewardsGrid">
-          {STICKER_CATALOG.map((s)=>(
+          {stickers.map((s)=>(
             <div key={s.id} className={"stickerCard" + (rewards.stickers.includes(s.id) ? " owned" : "")}>
               <div className="stickerIcon" style={{background: s.color}} />
               <div className="stickerName">{s.name}</div>
               {!rewards.stickers.includes(s.id) && <div className="stickerLock">잠금</div>}
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="card rewardsShop">
+        <div>
+          <div className="badge">오늘의 상점</div>
+          <h2 className="h2" style={{marginTop:6}}>오늘의 스티커 3종</h2>
+          <p className="p">코인으로 원하는 스티커를 바로 살 수 있어요.</p>
+        </div>
+        <div className="shopGrid">
+          {shopItems.map(item => {
+            const sticker = STICKER_CATALOG.find(s => s.id === item.id);
+            if (!sticker) return null;
+            const owned = rewards.stickers.includes(item.id);
+            return (
+              <div key={item.id} className="shopCard">
+                <div className="shopIcon" style={{background: sticker.color}} />
+                <div className="shopName">{sticker.name}</div>
+                <div className="shopPrice">{item.price} 코인</div>
+                <button className="btn btnPrimary" disabled={owned} onClick={()=>handleBuy(item.id, item.price)}>
+                  {owned ? "보유 중" : "구매"}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -43,6 +96,7 @@ export default function RewardsPage(){
           <Link className="btn btnGhost" href="/settings">학습 설정</Link>
         </div>
       </div>
+      {toast && <div className="toast">{toast}</div>}
     </main>
   );
 }
