@@ -44,6 +44,7 @@ export default function RewardsPage(){
   }
 
   const stickers = STICKER_CATALOG.filter(s => s.theme === theme);
+  const logs = rewards.logs ?? [];
   return (
     <main className="container">
       <div className="card rewardsHeader">
@@ -68,7 +69,9 @@ export default function RewardsPage(){
         <div className="rewardsGrid">
           {stickers.map((s)=>(
             <div key={s.id} className={"stickerCard" + (rewards.stickers.includes(s.id) ? " owned" : "")}>
-              <div className="stickerIcon" style={{background: s.color}} />
+              <div className="stickerIcon">
+                <img src={s.image} alt={s.name} />
+              </div>
               <div className="stickerName">{s.name}</div>
               {!rewards.stickers.includes(s.id) && <div className="stickerLock">잠금</div>}
             </div>
@@ -139,6 +142,30 @@ export default function RewardsPage(){
           <Link className="btn" href="/pet">내 펫 보기</Link>
           <Link className="btn btnGhost" href="/settings">학습 설정</Link>
         </div>
+      </div>
+      <div className="card rewardsLog">
+        <div className="h2">최근 획득 기록</div>
+        {logs.length === 0 ? (
+          <p className="p">아직 기록이 없습니다.</p>
+        ) : (
+          <div className="logList">
+            {logs.slice(0, 10).map(log => {
+              const sticker = log.stickerId ? STICKER_CATALOG.find(s => s.id === log.stickerId) : null;
+              const skin = log.skinId ? PET_SKINS.find(s => s.id === log.skinId) : null;
+              return (
+                <div key={log.id} className="logItem">
+                  <div className="logTitle">{log.title}</div>
+                  <div className="logMeta">
+                    {log.dateYmd}
+                    {log.coins ? ` · ${log.coins > 0 ? "+" : ""}${log.coins} 코인` : ""}
+                    {sticker ? ` · 스티커: ${sticker.name}` : ""}
+                    {skin ? ` · 스킨: ${skin.name}` : ""}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
       {toast && <div className="toast">{toast}</div>}
     </main>

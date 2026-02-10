@@ -15,6 +15,17 @@ export type RewardState = {
   lastDailyRewardYmd?: string;
   skins: string[];
   activeSkin?: string;
+  logs: RewardLog[];
+};
+
+export type RewardLog = {
+  id: string;
+  type: "daily" | "sticker" | "skin";
+  title: string;
+  dateYmd: string;
+  coins?: number;
+  stickerId?: string;
+  skinId?: string;
 };
 
 export const PET_SKINS: { id: string; name: string; price: number; color: string; accent: string }[] = [
@@ -25,19 +36,19 @@ export const PET_SKINS: { id: string; name: string; price: number; color: string
   { id: "grape", name: "포도", price: 16, color: "#ddd6fe", accent: "#a78bfa" },
 ];
 
-export const STICKER_CATALOG: { id: string; name: string; color: string; theme: "ocean"|"space"|"forest" }[] = [
-  { id: "star", name: "반짝별", color: "#ffd166", theme: "space" },
-  { id: "rocket", name: "로켓", color: "#fca5a5", theme: "space" },
-  { id: "planet", name: "행성", color: "#c4b5fd", theme: "space" },
-  { id: "cloud", name: "구름", color: "#a5f3fc", theme: "space" },
-  { id: "balloon", name: "풍선", color: "#fcd34d", theme: "forest" },
-  { id: "leaf", name: "잎새", color: "#86efac", theme: "forest" },
-  { id: "puzzle", name: "퍼즐", color: "#f9a8d4", theme: "forest" },
-  { id: "crown", name: "왕관", color: "#fbbf24", theme: "forest" },
-  { id: "fish", name: "물고기", color: "#93c5fd", theme: "ocean" },
-  { id: "gem", name: "보석", color: "#a7f3d0", theme: "ocean" },
-  { id: "dice", name: "주사위", color: "#fdba74", theme: "ocean" },
-  { id: "music", name: "음표", color: "#fda4af", theme: "forest" },
+export const STICKER_CATALOG: { id: string; name: string; color: string; theme: "ocean"|"space"|"forest"; image: string }[] = [
+  { id: "star", name: "반짝별", color: "#ffd166", theme: "space", image: "/stickers/star.svg" },
+  { id: "rocket", name: "로켓", color: "#fca5a5", theme: "space", image: "/stickers/rocket.svg" },
+  { id: "planet", name: "행성", color: "#c4b5fd", theme: "space", image: "/stickers/planet.svg" },
+  { id: "cloud", name: "구름", color: "#a5f3fc", theme: "space", image: "/stickers/cloud.svg" },
+  { id: "balloon", name: "풍선", color: "#fcd34d", theme: "forest", image: "/stickers/balloon.svg" },
+  { id: "leaf", name: "잎새", color: "#86efac", theme: "forest", image: "/stickers/leaf.svg" },
+  { id: "puzzle", name: "퍼즐", color: "#f9a8d4", theme: "forest", image: "/stickers/puzzle.svg" },
+  { id: "crown", name: "왕관", color: "#fbbf24", theme: "forest", image: "/stickers/crown.svg" },
+  { id: "fish", name: "물고기", color: "#93c5fd", theme: "ocean", image: "/stickers/fish.svg" },
+  { id: "gem", name: "보석", color: "#a7f3d0", theme: "ocean", image: "/stickers/gem.svg" },
+  { id: "dice", name: "주사위", color: "#fdba74", theme: "ocean", image: "/stickers/dice.svg" },
+  { id: "music", name: "음표", color: "#fda4af", theme: "forest", image: "/stickers/music.svg" },
 ];
 
 type LocalState = {
@@ -48,7 +59,7 @@ type LocalState = {
 };
 
 const LS_KEY = "playbono:v1";
-const defaultRewards: RewardState = { coins: 0, stickers: [], lastDailyRewardYmd: "", skins: ["sunny"], activeSkin: "sunny" };
+const defaultRewards: RewardState = { coins: 0, stickers: [], lastDailyRewardYmd: "", skins: ["sunny"], activeSkin: "sunny", logs: [] };
 
 function readState(): LocalState {
   if (typeof window === "undefined") {
@@ -142,6 +153,7 @@ export function addSticker(id: string) {
   const state = readState();
   if (!state.rewards.stickers.includes(id)) {
     state.rewards.stickers.push(id);
+    state.rewards.logs.unshift({ id: `sticker-${id}-${Date.now()}`, type: "sticker", title: "스티커 획득", dateYmd: new Date().toISOString().slice(0,10), stickerId: id });
     writeState(state);
   }
   return state.rewards;
@@ -154,6 +166,7 @@ export function buySkin(id: string, price: number) {
     state.rewards.skins.push(id);
   }
   state.rewards.coins -= price;
+  state.rewards.logs.unshift({ id: `skin-${id}-${Date.now()}`, type: "skin", title: "스킨 구매", dateYmd: new Date().toISOString().slice(0,10), skinId: id, coins: -price });
   if (!state.rewards.activeSkin) state.rewards.activeSkin = id;
   writeState(state);
   return { ok: true, rewards: state.rewards };
@@ -163,6 +176,21 @@ export function setActiveSkin(id: string) {
   const state = readState();
   if (!state.rewards.skins.includes(id)) return state.rewards;
   state.rewards.activeSkin = id;
+  writeState(state);
+  return state.rewards;
+}
+
+export function addDailyLog(dateYmd: string, coins: number, stickerId?: string) {
+  const state = readState();
+  state.rewards.logs.unshift({
+    id: `daily-${dateYmd}-${Date.now()}`,
+    type: "daily",
+    title: "오늘의 미션 보상",
+    dateYmd,
+    coins,
+    stickerId
+  });
+  state.rewards.logs = state.rewards.logs.slice(0, 30);
   writeState(state);
   return state.rewards;
 }
