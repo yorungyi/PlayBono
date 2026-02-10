@@ -1,12 +1,12 @@
-\"use client\";
+"use client";
 
-import Link from \"next/link\";
-import { useEffect, useState } from \"react\";
-import PetArt from \"@/components/PetArt\";
-import { defaultUserDoc, UserDoc } from \"@/lib/model\";
-import { ensureAnonAuth, getDbClient } from \"@/lib/firebase\";
-import { doc, getDoc } from \"firebase/firestore\";
-import { loadLocalUser } from \"@/lib/offline\";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import PetArt from "@/components/PetArt";
+import { defaultUserDoc, UserDoc } from "@/lib/model";
+import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { loadLocalUser } from "@/lib/offline";
 
 export default function HomePage(){
   const [user, setUser] = useState<UserDoc>(defaultUserDoc);
