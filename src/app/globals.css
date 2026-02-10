@@ -595,6 +595,7 @@ a{color:inherit; text-decoration:none}
   border:1px solid #fde2c1;
 }
 .petBubble{font-family:var(--font-title); font-size:44px; font-weight:800}
+.heroPet{display:flex; align-items:center; justify-content:center}
 
 .section{margin-top:26px}
 .sectionHeader{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}

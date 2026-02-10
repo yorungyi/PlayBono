@@ -1,6 +1,31 @@
-import Link from "next/link";
+\"use client\";
+
+import Link from \"next/link\";
+import { useEffect, useState } from \"react\";
+import PetArt from \"@/components/PetArt\";
+import { defaultUserDoc, UserDoc } from \"@/lib/model\";
+import { ensureAnonAuth, getDbClient } from \"@/lib/firebase\";
+import { doc, getDoc } from \"firebase/firestore\";
+import { loadLocalUser } from \"@/lib/offline\";
 
 export default function HomePage(){
+  const [user, setUser] = useState<UserDoc>(defaultUserDoc);
+  const [loadingPet, setLoadingPet] = useState(true);
+
+  useEffect(()=>{
+    (async ()=>{
+      const db = getDbClient();
+      if (!db) {
+        setUser(loadLocalUser());
+        setLoadingPet(false);
+        return;
+      }
+      const u = await ensureAnonAuth();
+      const snap = await getDoc(doc(db, \"users\", u.uid));
+      if (snap.exists()) setUser(snap.data() as UserDoc);
+      setLoadingPet(false);
+    })();
+  }, []);
   return (
     <main className="container">
       <section className="hero">
@@ -29,7 +54,13 @@ export default function HomePage(){
         <div className="heroSide">
           <div className="card heroArt">
             <div style={{textAlign:"center"}}>
-              <div className="petBubble">◕ ▽ ◕</div>
+              {loadingPet ? (
+                <div className="petBubble">…</div>
+              ) : (
+                <div className="heroPet">
+                  <PetArt stage={user.pet.stage} size={110} />
+                </div>
+              )}
               <div className="h3" style={{marginTop:6}}>오늘의 펫</div>
               <div className="small">맞힐수록 더 반짝반짝</div>
             </div>

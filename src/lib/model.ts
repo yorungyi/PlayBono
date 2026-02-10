@@ -11,6 +11,7 @@ export type UserDoc = {
     stage: PetStage;
     xp: number;
     evoPoints: number;
+    generation?: number;
   };
   streak: {
     count: number;

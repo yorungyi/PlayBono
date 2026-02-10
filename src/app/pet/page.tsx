@@ -1,34 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, UserDoc } from "@/lib/model";
-import { loadLocalUser, loadRewards, PET_SKINS, setActiveSkin } from "@/lib/offline";
-
-function PetArt({stage}:{stage:string}){
-  const label = stage === "egg" ? "알" : stage === "hatch" ? "병아리" : stage === "evo1" ? "토끼" : "여우";
-  return (
-    <div className={`petArt ${stage}`} aria-label={label}>
-      <div className="petFace">
-        <div className="petEye left" />
-        <div className="petEye right" />
-        <div className="petMouth" />
-      </div>
-      <div className="petLabel">{label}</div>
-    </div>
-  );
-}
+import { loadLocalUser, loadRewards, PET_SKINS, setActiveSkin, saveLocalUser } from "@/lib/offline";
+import PetArt from "@/components/PetArt";
 
 export default function PetPage(){
   const [user, setUser] = useState<UserDoc>(defaultUserDoc);
   const [loading, setLoading] = useState(true);
   const [skin, setSkin] = useState(loadRewards().activeSkin ?? "sunny");
+  const [localMode, setLocalMode] = useState(false);
 
   useEffect(()=>{
     (async ()=>{
       const db = getDbClient();
       if (!db) {
+        setLocalMode(true);
         const localUser = loadLocalUser();
         setUser(localUser);
         setLoading(false);
@@ -64,12 +53,45 @@ export default function PetPage(){
                 <div className="item"><div className="v">{user.pet.xp}</div><div className="t">누적 XP</div></div>
                 <div className="item"><div className="v">{user.pet.evoPoints}</div><div className="t">진화 포인트</div></div>
                 <div className="item"><div className="v">{user.streak.count}일</div><div className="t">연속 미션</div></div>
+                <div className="item"><div className="v">{user.pet.generation ?? 1}</div><div className="t">펫 세대</div></div>
               </div>
               <div className="hr" />
               <p className="p">
                 다음 진화를 위해서는 <b>정답률</b>과 <b>연속 미션</b>이 모두 필요합니다.
                 (학습 루틴을 만들기 위한 설계)
               </p>
+              {user.pet.stage === "evo2" && (
+                <div style={{marginTop:12}}>
+                  <button
+                    className="btn btnPrimary"
+                    onClick={async ()=>{
+                      const nextGen = (user.pet.generation ?? 1) + 1;
+                      const updated: UserDoc = {
+                        ...user,
+                        pet: { stage: "egg", xp: 0, evoPoints: 0, generation: nextGen }
+                      };
+                      if (localMode) {
+                        saveLocalUser(updated);
+                        setUser(updated);
+                        return;
+                      }
+                      const db = getDbClient();
+                      if (!db) return;
+                      const u = await ensureAnonAuth();
+                      const userRef = doc(db, "users", u.uid);
+                      await updateDoc(userRef, {
+                        "pet.stage": "egg",
+                        "pet.xp": 0,
+                        "pet.evoPoints": 0,
+                        "pet.generation": nextGen
+                      });
+                      setUser(updated);
+                    }}
+                  >
+                    새 펫 키우기 시작
+                  </button>
+                </div>
+              )}
               <div className="hr" />
               <div className="h3">펫 스킨</div>
               <div style={{display:"flex", gap:8, flexWrap:"wrap", marginTop:6}}>
