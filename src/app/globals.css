@@ -88,6 +88,12 @@ a{color:inherit; text-decoration:none}
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
 .btn:hover{transform: translateY(-1px); box-shadow:0 6px 16px rgba(31,41,55,.12)}
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
 .btnPrimary{background:var(--primary); color:white; border-color:transparent}
 .btnSecondary{background:var(--accent); color:white; border-color:transparent}
 .btnSoft{background:#fff6ee; border-color:#ffd8c7}
@@ -129,6 +135,97 @@ a{color:inherit; text-decoration:none}
 
 .grid2{display:grid; grid-template-columns:1fr; gap:18px}
 @media(min-width:900px){ .grid2{grid-template-columns:1.2fr .8fr} }
+
+.missionWrap{display:grid; gap:18px}
+.missionHeaderCard{padding:18px 20px; background:linear-gradient(180deg, #ffffff 0%, #fff5ea 100%); border:1px solid #ffe2cd}
+.missionHeaderTop{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap}
+.missionStamp{
+  font-family:var(--font-title);
+  font-weight:900;
+  font-size:22px;
+  color:#b4532a;
+  background:#fff0e6;
+  border:2px dashed #ffbba0;
+  padding:8px 12px;
+  border-radius:14px;
+  box-shadow:0 8px 18px rgba(255,122,89,.18);
+}
+.missionProgress{margin-top:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.missionProgressBar{
+  flex:1 1 220px;
+  height:12px; background:#ffe7d9; border-radius:999px; overflow:hidden;
+  border:1px solid #ffd0b8;
+}
+.missionProgressBar span{
+  display:block; height:100%;
+  background:linear-gradient(90deg, #ff7a59, #ffb703);
+  border-radius:999px;
+  box-shadow:0 4px 10px rgba(255,122,89,.35);
+  transition: width .3s ease;
+}
+.missionProgressMeta{font-weight:800; color:#b4532a}
+.missionDots{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
+.missionDots .dot{
+  width:10px; height:10px; border-radius:999px; background:#ffe1d1; border:1px solid #ffd2bf;
+}
+.missionDots .dot.on{
+  background:#ffb703; border-color:#ffb703; box-shadow:0 4px 10px rgba(255,183,3,.35);
+}
+.missionQuestionCard{padding:20px; position:relative; overflow:hidden}
+.missionQuestionCard::after{
+  content:"";
+  position:absolute; right:-60px; top:-60px;
+  width:180px; height:180px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,183,3,.35), rgba(255,183,3,0));
+  z-index:0;
+}
+.missionQuestion{position:relative; z-index:1; display:grid; gap:10px; margin:12px 0 6px 0}
+.missionBubble{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:84px; height:36px; border-radius:999px;
+  background:#eaf7ff; border:1px solid #cfe9ff;
+  font-weight:900; color:#2563eb;
+}
+.missionText{
+  font-family:var(--font-title);
+  font-size:36px;
+  font-weight:900;
+  letter-spacing:-0.5px;
+}
+.missionAnswerRow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px; position:relative; z-index:1}
+.missionInput{flex:1 1 180px; font-size:18px}
+.missionSubmit{min-width:96px}
+.missionTip{
+  margin-top:12px; padding:10px 12px; border-radius:14px;
+  background:#fff7ef; border:1px dashed #ffd1b3; color:#9a5a3a; font-weight:700;
+}
+.missionSideCard{padding:18px}
+.missionMarks{display:flex; gap:8px; flex-wrap:wrap}
+.missionMarks .mark{
+  width:34px; height:34px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900;
+  border:2px solid transparent;
+}
+.missionMarks .mark.ok{background:#e9fbe9; border-color:#bbf7d0; color:#15803d}
+.missionMarks .mark.no{background:#fff1f2; border-color:#fecdd3; color:#be123c}
+.missionLoading{padding:20px}
+.missionSkeleton{display:grid; gap:10px; margin-top:14px}
+.missionSkeleton .bone{
+  height:14px; border-radius:999px;
+  background:linear-gradient(90deg, #ffe7d9, #fff5ee, #ffe7d9);
+  background-size:200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+.missionError{padding:20px; border:1px solid #ffd1d1; background:linear-gradient(180deg, #fff 0%, #fff5f5 100%)}
+.missionResult{padding:20px}
+.missionStars{display:flex; gap:6px; font-size:22px; color:#ffb703; margin-top:8px}
+.missionStars .star{filter: drop-shadow(0 3px 4px rgba(255,183,3,.4))}
+
+@keyframes shimmer{
+  0%{background-position:0% 0%}
+  100%{background-position:200% 0%}
+}
 
 .hero{display:grid; grid-template-columns:1fr; gap:18px}
 @media(min-width:980px){ .hero{grid-template-columns:1.2fr .8fr; align-items:stretch} }
