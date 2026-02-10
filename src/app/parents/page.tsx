@@ -5,6 +5,7 @@ import ParentGate from "@/components/ParentGate";
 import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { collection, doc, getDoc, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { defaultUserDoc, UserDoc } from "@/lib/model";
+import { listLocalDaily, loadLocalUser } from "@/lib/offline";
 
 type DailyScore = { id:string; score?: { correct:number; total:number; durationSec:number } };
 
@@ -19,6 +20,10 @@ export default function ParentsPage(){
     (async ()=>{
       const db = getDbClient();
       if (!db) {
+        const localUser = loadLocalUser();
+        setUser(localUser);
+        const items = listLocalDaily(7).map(d => ({ id: d.dateYmd, score: d.score }));
+        setRecent(items);
         setLoading(false);
         return;
       }

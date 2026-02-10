@@ -12,8 +12,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
+function hasFirebaseConfig() {
+  return Object.values(firebaseConfig).every(Boolean);
+}
+
 function getFirebaseApp() {
   if (typeof window === "undefined") return null;
+  if (!hasFirebaseConfig()) return null;
   if (!getApps().length) initializeApp(firebaseConfig);
   return getApps()[0]!;
 }

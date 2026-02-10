@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, UserDoc } from "@/lib/model";
+import { loadLocalUser } from "@/lib/offline";
 
 function PetArt({stage}:{stage:string}){
   const size = 140;
@@ -30,6 +31,8 @@ export default function PetPage(){
     (async ()=>{
       const db = getDbClient();
       if (!db) {
+        const localUser = loadLocalUser();
+        setUser(localUser);
         setLoading(false);
         return;
       }

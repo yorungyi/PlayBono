@@ -5,6 +5,7 @@ import Link from "next/link";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { defaultUserDoc, UserDoc } from "@/lib/model";
+import { loadLocalUser, saveLocalUser } from "@/lib/offline";
 
 export default function SettingsPage(){
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,8 @@ export default function SettingsPage(){
     (async ()=>{
       const db = getDbClient();
       if (!db) {
+        const localUser = loadLocalUser();
+        setUser(localUser);
         setLoading(false);
         return;
       }
@@ -28,7 +31,12 @@ export default function SettingsPage(){
 
   async function save(){
     const db = getDbClient();
-    if (!db) return;
+    if (!db) {
+      saveLocalUser(user);
+      setSaved(true);
+      setTimeout(()=>setSaved(false), 1200);
+      return;
+    }
     const u = await ensureAnonAuth();
     const userRef = doc(db, "users", u.uid);
     await updateDoc(userRef, {

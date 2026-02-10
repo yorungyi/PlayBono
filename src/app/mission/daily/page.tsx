@@ -5,15 +5,8 @@ import Link from "next/link";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, nextStage, UserDoc } from "@/lib/model";
-import { Difficulty, generateDailyQuestions, ymd, Op } from "@/lib/quiz";
-
-type DailyDoc = {
-  seed: number;
-  dateYmd: string;
-  questions: { id:string; op:Op; a:number; b:number; text:string; answer:number }[];
-  answers?: { id:string; userAnswer:number; correct:boolean }[];
-  score?: { correct:number; total:number; durationSec:number };
-};
+import { Difficulty, generateDailyQuestions, ymd } from "@/lib/quiz";
+import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser } from "@/lib/offline";
 
 function clampGrade(n:number): 1|2|3|4 {
   if (n<=1) return 1;
@@ -27,6 +20,7 @@ export default function DailyMissionPage(){
   const [uid, setUid] = useState<string>("");
   const [user, setUser] = useState<UserDoc>(defaultUserDoc);
   const [error, setError] = useState<string | null>(null);
+  const [localMode, setLocalMode] = useState(false);
 
   const [qs, setQs] = useState<DailyDoc["questions"]>([]);
   const [idx, setIdx] = useState(0);
@@ -43,10 +37,46 @@ export default function DailyMissionPage(){
       try {
         const db = getDbClient();
         if (!db) {
-          setError("브라우저에서만 사용할 수 있어요. 팝업/스토리지 차단을 해제하고 다시 시도해 주세요.");
+          const localUid = getLocalUid();
+          setUid(localUid);
+          setLocalMode(true);
+
+          const localUser = loadLocalUser();
+          setUser(localUser);
+
+          const dailyCached = loadLocalDaily(today);
+          let daily: DailyDoc;
+          if (!dailyCached) {
+            const grade = clampGrade(Number(localUser.grade || 1));
+            const difficulty: Difficulty = grade <= 2 ? "easy" : grade === 3 ? "mid" : "mid";
+            const questions = generateDailyQuestions({
+              uid: localUid,
+              dateYmd: today,
+              grade,
+              difficulty,
+              opsEnabled: localUser.opsEnabled ?? defaultUserDoc.opsEnabled,
+              version: "v1"
+            });
+            daily = { seed: 0, dateYmd: today, questions };
+            saveLocalDaily(daily);
+          } else {
+            daily = dailyCached;
+          }
+
+          setQs(daily.questions);
+          setAnswers(daily.answers ?? []);
+          setIdx((daily.answers ?? []).length);
+          setDone(Boolean(daily.score));
+          setResult(daily.score ?? null);
+          setStartAt(Date.now());
           setLoading(false);
+
+          (window as any).__PASS = 8;
+          (window as any).__XP = 10;
+          (window as any).__BONUS = 2;
           return;
         }
+
         const u = await ensureAnonAuth();
         setUid(u.uid);
 
@@ -91,6 +121,7 @@ export default function DailyMissionPage(){
 
         setQs(daily.questions);
         setAnswers(daily.answers ?? []);
+        setIdx((daily.answers ?? []).length);
         setDone(Boolean(daily.score));
         setResult(daily.score ?? null);
         setStartAt(Date.now());
@@ -116,8 +147,6 @@ export default function DailyMissionPage(){
 
   async function submit(){
     if (!current) return;
-    const db = getDbClient();
-    if (!db) return;
     const n = Number(input);
     if (!Number.isFinite(n)) return;
 
@@ -126,6 +155,10 @@ export default function DailyMissionPage(){
     setAnswers(next);
     setInput("");
 
+    if (localMode && idx + 1 < qs.length) {
+      saveLocalDaily({ seed: 0, dateYmd: today, questions: qs, answers: next });
+    }
+
     if (idx + 1 >= qs.length) {
       const durationSec = Math.max(1, Math.round((Date.now() - startAt) / 1000));
       const correctCount = next.filter(a => a.correct).length;
@@ -133,11 +166,6 @@ export default function DailyMissionPage(){
       setDone(true);
       setResult(score);
 
-      // persist daily result
-      const dailyRef = doc(db, "users", uid, "daily", today);
-      await updateDoc(dailyRef, { answers: next, score });
-
-      // update user economy/pet/streak
       const pass = Number((window as any).__PASS ?? 8);
       const xpPer = Number((window as any).__XP ?? 10);
       const bonusPerfect = Number((window as any).__BONUS ?? 2);
@@ -172,6 +200,26 @@ export default function DailyMissionPage(){
       if (t && evoPoints >= t.needEvo && newStreak >= t.needStreak) {
         stage = nextStage(stage as any) as any;
       }
+
+      if (localMode) {
+        const dailyLocal = { seed: 0, dateYmd: today, questions: qs, answers: next, score };
+        saveLocalDaily(dailyLocal);
+        const updatedUser = {
+          ...user,
+          pet: { ...user.pet, stage: stage as any, xp, evoPoints },
+          streak: { count: newStreak, lastDailyDate: today }
+        };
+        saveLocalUser(updatedUser);
+        setUser(updatedUser);
+        return;
+      }
+
+      const db = getDbClient();
+      if (!db) return;
+
+      // persist daily result
+      const dailyRef = doc(db, "users", uid, "daily", today);
+      await updateDoc(dailyRef, { answers: next, score });
 
       const userRef = doc(db, "users", uid);
       await updateDoc(userRef, {
