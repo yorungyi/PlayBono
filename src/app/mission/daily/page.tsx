@@ -159,18 +159,27 @@ export default function DailyMissionPage(){
   const okRef = useRef<HTMLAudioElement | null>(null);
   const noRef = useRef<HTMLAudioElement | null>(null);
   const doneRef = useRef<HTMLAudioElement | null>(null);
+  const badgeRef = useRef<HTMLAudioElement | null>(null);
+  const themeRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(()=>{
     okRef.current = new Audio("/sfx/correct.wav");
     noRef.current = new Audio("/sfx/wrong.wav");
     doneRef.current = new Audio("/sfx/complete.wav");
+    badgeRef.current = new Audio("/sfx/badge.wav");
   }, []);
+
+  useEffect(()=>{
+    themeRef.current = new Audio(`/sfx/theme_${theme}.wav`);
+  }, [theme]);
 
   useEffect(()=>{
     const v = Math.max(0, Math.min(1, volume));
     if (okRef.current) okRef.current.volume = v;
     if (noRef.current) noRef.current.volume = v;
     if (doneRef.current) doneRef.current.volume = v;
+    if (badgeRef.current) badgeRef.current.volume = v;
+    if (themeRef.current) themeRef.current.volume = v * 0.6;
   }, [volume]);
 
   function playSound(type: "ok" | "no" | "done"){
@@ -183,6 +192,22 @@ export default function DailyMissionPage(){
     } catch {
       // ignore autoplay errors
     }
+  }
+
+  function playBadge(){
+    if (!soundOn || !badgeRef.current) return;
+    try {
+      badgeRef.current.currentTime = 0;
+      badgeRef.current.play();
+    } catch {}
+  }
+
+  function playTheme(){
+    if (!soundOn || !themeRef.current) return;
+    try {
+      themeRef.current.currentTime = 0;
+      themeRef.current.play();
+    } catch {}
   }
 
   async function submit(){
@@ -279,7 +304,10 @@ export default function DailyMissionPage(){
       if (correctCount === qs.length) award("perfect");
       if (newStreak >= 3) award("streak3");
       if (newStreak >= 7) award("streak7");
-      if (newly.length) setEarnedBadges(newly);
+      if (newly.length) {
+        setEarnedBadges(newly);
+        playBadge();
+      }
 
       if (localMode) {
         const dailyLocal = { seed: 0, dateYmd: today, questions: qs, answers: next, score };
@@ -386,14 +414,15 @@ export default function DailyMissionPage(){
             </div>
           )}
           {earnedBadges.length > 0 && (
-            <div className="missionBadges">
+            <div className="badgePopup">
               {earnedBadges.map(id => {
                 const b = BADGES.find(x => x.id === id);
                 if (!b) return null;
                 return (
-                  <div key={id} className="badgeEarned">
+                  <div key={id} className="badgeEarned pop">
                     <span className="badgeIcon">{b.icon}</span>
                     <span className="badgeName">{b.name}</span>
+                    <span className="badgeDesc">{b.desc}</span>
                   </div>
                 );
               })}
@@ -502,6 +531,9 @@ export default function DailyMissionPage(){
             <div className="missionTip">
               팁: 차근차근 계산해도 괜찮아요. 정확하게 맞히는 것이 목표입니다.
             </div>
+          </div>
+          <div className="missionMusic">
+            <button className="btn btnSecondary" onClick={playTheme}>테마 음악 듣기</button>
           </div>
 
           <div className="card missionSideCard">

@@ -10,6 +10,7 @@ export default function RewardsPage(){
   const [theme, setTheme] = useState<"space"|"ocean"|"forest">("space");
   const [toast, setToast] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ type: "sticker" | "skin"; id: string } | null>(null);
+  const [albumPage, setAlbumPage] = useState(0);
   const today = useMemo(()=>ymd(new Date()), []);
   const shopItems = useMemo(()=>getDailyShop(today, 3), [today]);
 
@@ -175,11 +176,23 @@ export default function RewardsPage(){
       <div className="card rewardsAlbum">
         <div className="h2">스티커 앨범</div>
         <p className="p">모은 스티커를 한 장씩 넘겨보세요.</p>
+        <div className="albumPager">
+          <button className="btn" onClick={()=>setAlbumPage(p=>Math.max(0, p-1))}>이전</button>
+          <div className="small">페이지 {albumPage+1}</div>
+          <button className="btn" onClick={()=>setAlbumPage(p=>p+1)}>다음</button>
+        </div>
         <div className="albumRow">
-          {STICKER_CATALOG.slice(0, 6).map(s => (
-            <div key={s.id} className="albumCard">
-              <img src={s.image} alt={s.name} />
-              <div className="albumName">{s.name}</div>
+          {STICKER_CATALOG.slice(albumPage*6, albumPage*6 + 6).map(s => (
+            <div key={s.id} className="albumCard flip">
+              <div className="albumInner">
+                <div className="albumFront">
+                  <img src={s.image} alt={s.name} />
+                </div>
+                <div className="albumBack">
+                  <div className="albumName">{s.name}</div>
+                  <div className="small">스티커 #{s.id}</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
