@@ -6,7 +6,7 @@ import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firest
 import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, nextStage, UserDoc } from "@/lib/model";
 import { Difficulty, generateDailyQuestions, ymd } from "@/lib/quiz";
-import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser } from "@/lib/offline";
+import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser, loadRewards, saveRewards, pickRandomStickerId, STICKER_CATALOG } from "@/lib/offline";
 
 function clampGrade(n:number): 1|2|3|4 {
   if (n<=1) return 1;
@@ -29,6 +29,7 @@ export default function DailyMissionPage(){
   const [startAt, setStartAt] = useState<number>(0);
   const [done, setDone] = useState(false);
   const [result, setResult] = useState<{correct:number; total:number; durationSec:number} | null>(null);
+  const [reward, setReward] = useState<{ coins:number; stickerId?: string } | null>(null);
 
   const today = useMemo(()=>ymd(new Date()), []);
 
@@ -201,6 +202,22 @@ export default function DailyMissionPage(){
         stage = nextStage(stage as any) as any;
       }
 
+      const rewards = loadRewards();
+      if (rewards.lastDailyRewardYmd !== today) {
+        const coinsEarned = 5 + correctCount;
+        const stickerId = pickRandomStickerId(rewards.stickers);
+        const updated = {
+          ...rewards,
+          coins: rewards.coins + coinsEarned,
+          stickers: rewards.stickers.includes(stickerId) ? rewards.stickers : [...rewards.stickers, stickerId],
+          lastDailyRewardYmd: today
+        };
+        saveRewards(updated);
+        setReward({ coins: coinsEarned, stickerId });
+      } else {
+        setReward({ coins: 0 });
+      }
+
       if (localMode) {
         const dailyLocal = { seed: 0, dateYmd: today, questions: qs, answers: next, score };
         saveLocalDaily(dailyLocal);
@@ -278,6 +295,9 @@ export default function DailyMissionPage(){
 
   if (done && result) {
     const pass = Number((window as any).__PASS ?? 8);
+    const rewardSticker = reward?.stickerId
+      ? STICKER_CATALOG.find(s => s.id === reward.stickerId)
+      : null;
     return (
       <main className="container">
         <div className="card missionResult">
@@ -289,6 +309,19 @@ export default function DailyMissionPage(){
               <span key={i} className="star">★</span>
             ))}
           </div>
+          {reward && (
+            <div className="missionReward">
+              <div className="rewardCoins">+{reward.coins} 코인</div>
+              {rewardSticker ? (
+                <div className="rewardSticker">
+                  <span className="stickerDot" style={{background: rewardSticker.color}} />
+                  새 스티커: {rewardSticker.name}
+                </div>
+              ) : (
+                <div className="rewardSticker">오늘의 보상은 이미 받았어요</div>
+              )}
+            </div>
+          )}
           <div className="hr" />
           <div className="kpi">
             <div className="item"><div className="v">{stageLabel(user.pet.stage)}</div><div className="t">현재 단계</div></div>

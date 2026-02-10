@@ -6,20 +6,20 @@ export default function HomePage(){
       <section className="hero">
         <div className="card heroCard cardSoft">
           <div className="pill">오늘 10문제 · 1~3분</div>
-          <h1 className="h1 jumbo" style={{marginTop:10}}>매일 앉기 쉬운, 짧고 재밌는 수학 루틴</h1>
+          <h1 className="h1 jumbo" style={{marginTop:10}}>오늘도 스티커 모으러 가자!</h1>
           <p className="lead">
-            수학펫은 “게임”이 아니라 <b>학습 루틴</b>이에요. 짧게 풀고, 바로 칭찬받고,
-            내 펫이 자라는 걸 보면서 매일 습관을 만들어요.
+            짧게 풀고, 바로 칭찬받고, 내 펫이 자라요.
+            수학을 “재밌게 오래” 하도록 만든 매일 루틴입니다.
           </p>
           <div style={{display:"flex", gap:10, marginTop:16, flexWrap:"wrap"}}>
             <Link className="btn btnPrimary" href="/mission/daily">오늘의 미션 시작</Link>
-            <Link className="btn btnSoft" href="/worksheets/1/add/easy">워크시트 보기</Link>
+            <Link className="btn btnSoft" href="/rewards">스티커 보드</Link>
             <Link className="btn" href="/pet">내 펫 보기</Link>
           </div>
           <div className="kpi" style={{marginTop:16}}>
             <div className="item"><div className="v">초1~초4</div><div className="t">학년 지원</div></div>
             <div className="item"><div className="v">10문제</div><div className="t">데일리 미션</div></div>
-            <div className="item"><div className="v">알→부화→진화</div><div className="t">성취 보상</div></div>
+            <div className="item"><div className="v">스티커·코인</div><div className="t">오늘 보상</div></div>
           </div>
           <div className="small" style={{marginTop:12}}>
             ※ 워크시트/연습 페이지에만 광고가 표시됩니다. 미션 화면은 광고를 최소화합니다.
@@ -29,17 +29,17 @@ export default function HomePage(){
         <div className="heroSide">
           <div className="card heroArt">
             <div style={{textAlign:"center"}}>
-              <div className="petBubble">◕ ◕</div>
+              <div className="petBubble">◕ ▽ ◕</div>
               <div className="h3" style={{marginTop:6}}>오늘의 펫</div>
               <div className="small">맞힐수록 더 반짝반짝</div>
             </div>
           </div>
           <div className="card cardCool" style={{padding:16}}>
-            <div className="h2">부모용 리포트</div>
-            <p className="p">정답률·소요시간·취약 연산을 한눈에 확인해요.</p>
+            <div className="h2">스티커 보드</div>
+            <p className="p">오늘 미션을 깨면 새 스티커를 받아요.</p>
             <div style={{display:"flex", gap:8, marginTop:12, flexWrap:"wrap"}}>
-              <Link className="btn btnSecondary" href="/parents">부모용 화면</Link>
-              <Link className="btn" href="/settings">학습 설정</Link>
+              <Link className="btn btnSecondary" href="/rewards">보상 보러가기</Link>
+              <Link className="btn" href="/parents">부모용 화면</Link>
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function HomePage(){
       <section className="section">
         <div className="sectionHeader">
           <h2 className="h2">아이 눈높이 화면</h2>
-          <p className="p">가독성을 높이고, 오래 봐도 피곤하지 않은 색과 배치로 개선했습니다.</p>
+          <p className="p">큰 버튼, 밝은 색감, 쉬운 흐름으로 스스로 시작할 수 있게 만들었어요.</p>
         </div>
         <div className="featureGrid">
           <div className="card featureCard">
@@ -89,9 +89,9 @@ export default function HomePage(){
             <p className="p">필요한 기능만 크게 보여줘서 헷갈리지 않아요.</p>
           </div>
           <div className="card featureCard cardSoft">
-            <div className="badge">반복 학습</div>
-            <div className="h3" style={{marginTop:8}}>매일 같은 흐름</div>
-            <p className="p">항상 같은 위치에 있어 스스로 학습을 시작합니다.</p>
+            <div className="badge">보상 수집</div>
+            <div className="h3" style={{marginTop:8}}>스티커 모으기</div>
+            <p className="p">오늘 미션을 풀면 스티커와 코인이 쌓여요.</p>
           </div>
           <div className="card featureCard cardCool">
             <div className="badge">보호자 안심</div>
