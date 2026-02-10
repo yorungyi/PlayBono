@@ -3,6 +3,13 @@ import { Timestamp } from "firebase/firestore";
 export type Grade = 1|2|3|4;
 export type Op = "add"|"sub"|"mul"|"div";
 export type PetStage = "egg"|"hatch"|"evo1"|"evo2";
+export type PetSpecies = "chick"|"cat"|"dog"|"bear";
+
+export type PetRecord = {
+  generation: number;
+  species: PetSpecies;
+  completedAt: string; // YYYY-MM-DD
+};
 
 export type UserDoc = {
   grade: Grade;
@@ -12,7 +19,9 @@ export type UserDoc = {
     xp: number;
     evoPoints: number;
     generation?: number;
+    species?: PetSpecies;
   };
+  petHistory?: PetRecord[];
   streak: {
     count: number;
     lastDailyDate: string; // YYYY-MM-DD
@@ -24,7 +33,8 @@ export type UserDoc = {
 export const defaultUserDoc: UserDoc = {
   grade: 1,
   opsEnabled: { add:true, sub:true, mul:true, div:true },
-  pet: { stage:"egg", xp:0, evoPoints:0 },
+  pet: { stage:"egg", xp:0, evoPoints:0, generation: 1, species: "chick" },
+  petHistory: [],
   streak: { count:0, lastDailyDate:"" }
 };
 

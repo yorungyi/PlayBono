@@ -37,6 +37,7 @@ export default function StudyNav(){
           <A href="/rewards" label="스티커" />
           <A href="/worksheets/1/add/easy" label="워크시트" />
           <A href="/pet" label="펫" />
+          <A href="/pet/collection" label="펫 컬렉션" />
           <A href="/settings" label="설정" />
           <A href="/parents" label="부모용" />
         </div>

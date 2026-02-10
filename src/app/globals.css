@@ -551,6 +551,32 @@ a{color:inherit; text-decoration:none}
 .petArt.evo2 .petFace::before{left:4px; transform:rotate(-12deg)}
 .petArt.evo2 .petFace::after{right:4px; transform:rotate(12deg)}
 .petLabel{font-weight:900; color:#7c4a2b}
+.petArt.species-cat .petFace::before{
+  content:""; position:absolute; top:-12px; left:8px; width:14px; height:14px; background:#fff; border:2px solid #f1f5f9; transform:rotate(-20deg);
+}
+.petArt.species-cat .petFace::after{
+  content:""; position:absolute; top:-12px; right:8px; width:14px; height:14px; background:#fff; border:2px solid #f1f5f9; transform:rotate(20deg);
+}
+.petArt.species-dog .petFace::before{
+  content:""; position:absolute; top:-6px; left:-6px; width:16px; height:20px; background:#fff; border:2px solid #f1f5f9; border-radius:10px;
+}
+.petArt.species-dog .petFace::after{
+  content:""; position:absolute; top:-6px; right:-6px; width:16px; height:20px; background:#fff; border:2px solid #f1f5f9; border-radius:10px;
+}
+.petArt.species-bear .petFace::before{
+  content:""; position:absolute; top:-10px; left:6px; width:16px; height:16px; background:#fff; border:2px solid #f1f5f9; border-radius:50%;
+}
+.petArt.species-bear .petFace::after{
+  content:""; position:absolute; top:-10px; right:6px; width:16px; height:16px; background:#fff; border:2px solid #f1f5f9; border-radius:50%;
+}
+.petChooser{margin-top:10px; padding:10px; border-radius:14px; border:1px dashed #ffd1b3; background:#fff7ef}
+.petGallery{display:grid; gap:12px; grid-template-columns:repeat(2, 1fr)}
+@media(min-width:700px){ .petGallery{grid-template-columns:repeat(4, 1fr)} }
+.petCard{
+  padding:12px; border-radius:16px; border:1px solid #e5e7eb; background:#fff;
+  display:grid; gap:8px; justify-items:center; text-align:center;
+}
+.petMeta{font-size:12px; font-weight:800; color:#6b7280}
 .petSkinWrap{display:inline-block}
 .petSkinWrap.skin-sunny .petArt{box-shadow:0 14px 30px rgba(251,191,36,.35)}
 .petSkinWrap.skin-sky .petArt{box-shadow:0 14px 30px rgba(96,165,250,.25)}

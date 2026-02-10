@@ -58,7 +58,7 @@ export default function HomePage(){
                 <div className="petBubble">…</div>
               ) : (
                 <div className="heroPet">
-                  <PetArt stage={user.pet.stage} size={110} />
+                  <PetArt stage={user.pet.stage} species={user.pet.species ?? "chick"} size={110} />
                 </div>
               )}
               <div className="h3" style={{marginTop:6}}>오늘의 펫</div>
