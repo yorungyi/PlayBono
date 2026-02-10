@@ -79,6 +79,9 @@ export default function DailyMissionPage(){
           setIdx((daily.answers ?? []).length);
           setDone(Boolean(daily.score));
           setResult(daily.score ?? null);
+          if (daily.score) {
+            maybeGrantOfflineReward(daily.score.correct, daily.score.total);
+          }
           setStartAt(Date.now());
           setLoading(false);
 
@@ -135,6 +138,9 @@ export default function DailyMissionPage(){
         setIdx((daily.answers ?? []).length);
         setDone(Boolean(daily.score));
         setResult(daily.score ?? null);
+        if (daily.score) {
+          maybeGrantOfflineReward(daily.score.correct, daily.score.total);
+        }
         setStartAt(Date.now());
         setLoading(false);
 
@@ -149,6 +155,40 @@ export default function DailyMissionPage(){
       }
     })();
   }, [today]);
+
+  function maybeGrantOfflineReward(correctCount: number, totalCount: number){
+    const rewards = loadRewards();
+    if (rewards.lastDailyRewardYmd === today) {
+      return;
+    }
+    const coinsEarned = 5 + correctCount;
+    const stickerId = pickRandomStickerId(rewards.stickers);
+    const updated = {
+      ...rewards,
+      coins: rewards.coins + coinsEarned,
+      stickers: rewards.stickers.includes(stickerId) ? rewards.stickers : [...rewards.stickers, stickerId],
+      lastDailyRewardYmd: today
+    };
+    saveRewards(updated);
+    addDailyLog(today, coinsEarned, stickerId);
+    setReward({ coins: coinsEarned, stickerId });
+
+    // badges (retroactive if missing)
+    const newly: string[] = [];
+    const before = loadRewards().badges ?? [];
+    const award = (id: string) => {
+      if (!before.includes(id)) {
+        addBadge(id);
+        newly.push(id);
+      }
+    };
+    award("first");
+    if (correctCount === totalCount) award("perfect");
+    const streakCount = user.streak?.count ?? 0;
+    if (streakCount >= 3) award("streak3");
+    if (streakCount >= 7) award("streak7");
+    if (newly.length) setEarnedBadges(newly);
+  }
 
   const current = qs[idx];
   const total = qs.length || 10;
