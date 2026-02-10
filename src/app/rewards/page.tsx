@@ -42,7 +42,7 @@ export default function RewardsPage(){
         </div>
       </div>
 
-      <div className="card rewardsBoard">
+      <div className={`card rewardsBoard theme-${theme}`}>
         <div className="rewardsTabs">
           <button className={"btn" + (theme === "space" ? " btnPrimary" : "")} onClick={()=>setTheme("space")}>우주</button>
           <button className={"btn" + (theme === "ocean" ? " btnPrimary" : "")} onClick={()=>setTheme("ocean")}>바다</button>

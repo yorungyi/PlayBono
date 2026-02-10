@@ -151,6 +151,7 @@ a{color:inherit; text-decoration:none}
   box-shadow:0 8px 18px rgba(255,122,89,.18);
 }
 .missionProgress{margin-top:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.missionSound{margin-top:10px}
 .missionProgressBar{
   flex:1 1 220px;
   height:12px; background:#ffe7d9; border-radius:999px; overflow:hidden;
@@ -259,7 +260,33 @@ a{color:inherit; text-decoration:none}
 }
 .coinLabel{font-size:12px; font-weight:800; color:#9a5a3a}
 .coinValue{font-size:26px; font-weight:900; color:#b4532a}
-.rewardsBoard{padding:18px}
+.rewardsBoard{padding:18px; position:relative; overflow:hidden}
+.rewardsBoard::before{
+  content:"";
+  position:absolute; inset:-20% -10% auto auto; width:260px; height:260px; opacity:.35;
+  filter: blur(2px);
+}
+.rewardsBoard.theme-space{background:linear-gradient(180deg, #ffffff 0%, #f3f5ff 100%); border:1px solid #e0e7ff}
+.rewardsBoard.theme-space::before{
+  background:
+    radial-gradient(circle at 30% 30%, #c4b5fd 0 10px, transparent 11px),
+    radial-gradient(circle at 70% 20%, #93c5fd 0 8px, transparent 9px),
+    radial-gradient(circle at 40% 70%, #fcd34d 0 7px, transparent 8px);
+}
+.rewardsBoard.theme-ocean{background:linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%); border:1px solid #bae6fd}
+.rewardsBoard.theme-ocean::before{
+  background:
+    radial-gradient(circle at 30% 30%, #93c5fd 0 10px, transparent 11px),
+    radial-gradient(circle at 70% 20%, #a7f3d0 0 8px, transparent 9px),
+    radial-gradient(circle at 40% 70%, #38bdf8 0 7px, transparent 8px);
+}
+.rewardsBoard.theme-forest{background:linear-gradient(180deg, #ffffff 0%, #ecfccb 100%); border:1px solid #bbf7d0}
+.rewardsBoard.theme-forest::before{
+  background:
+    radial-gradient(circle at 30% 30%, #86efac 0 10px, transparent 11px),
+    radial-gradient(circle at 70% 20%, #fcd34d 0 8px, transparent 9px),
+    radial-gradient(circle at 40% 70%, #f9a8d4 0 7px, transparent 8px);
+}
 .rewardsTabs{display:flex; gap:8px; flex-wrap:wrap}
 .rewardsGrid{display:grid; gap:12px; grid-template-columns:repeat(2, 1fr)}
 @media(min-width:700px){ .rewardsGrid{grid-template-columns:repeat(4, 1fr)} }
@@ -298,6 +325,7 @@ a{color:inherit; text-decoration:none}
   border:1px solid #e5e7eb; box-shadow:var(--shadow);
   display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px;
   transition: transform .2s ease;
+  animation: bob 2.8s ease-in-out infinite;
 }
 .petArt:hover{transform: translateY(-2px)}
 .petArt.egg{background:linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%)}
@@ -312,6 +340,7 @@ a{color:inherit; text-decoration:none}
 .petEye{
   width:10px; height:10px; border-radius:50%; background:#1f2937;
   box-shadow:0 2px 0 rgba(31,41,55,.1);
+  animation: blink 4s infinite;
 }
 .petMouth{
   position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
@@ -333,6 +362,16 @@ a{color:inherit; text-decoration:none}
 .petArt.evo2 .petFace::before{left:4px; transform:rotate(-12deg)}
 .petArt.evo2 .petFace::after{right:4px; transform:rotate(12deg)}
 .petLabel{font-weight:900; color:#7c4a2b}
+
+@keyframes blink{
+  0%, 46%, 48%, 100%{transform:scaleY(1)}
+  47%{transform:scaleY(0.1)}
+}
+@keyframes bob{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+  100%{transform:translateY(0)}
+}
 
 @keyframes shimmer{
   0%{background-position:0% 0%}

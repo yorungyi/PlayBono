@@ -30,6 +30,7 @@ export default function DailyMissionPage(){
   const [done, setDone] = useState(false);
   const [result, setResult] = useState<{correct:number; total:number; durationSec:number} | null>(null);
   const [reward, setReward] = useState<{ coins:number; stickerId?: string } | null>(null);
+  const [soundOn, setSoundOn] = useState(true);
 
   const today = useMemo(()=>ymd(new Date()), []);
 
@@ -146,12 +147,34 @@ export default function DailyMissionPage(){
   const progressPct = total ? Math.min(100, Math.round((answered / total) * 100)) : 0;
   const canSubmit = input.trim().length > 0 && Number.isFinite(Number(input));
 
+  function playTone(type: "ok" | "no" | "done"){
+    if (!soundOn) return;
+    if (typeof window === "undefined") return;
+    const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    const freq = type === "ok" ? 700 : type === "no" ? 220 : 900;
+    osc.frequency.value = freq;
+    gain.gain.value = 0.0001;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+    osc.stop(ctx.currentTime + 0.2);
+    osc.onended = () => ctx.close();
+  }
+
   async function submit(){
     if (!current) return;
     const n = Number(input);
     if (!Number.isFinite(n)) return;
 
     const correct = n === current.answer;
+    playTone(correct ? "ok" : "no");
     const next = [...answers, { id: current.id, userAnswer: n, correct }];
     setAnswers(next);
     setInput("");
@@ -166,6 +189,7 @@ export default function DailyMissionPage(){
       const score = { correct: correctCount, total: qs.length, durationSec };
       setDone(true);
       setResult(score);
+      playTone("done");
 
       const pass = Number((window as any).__PASS ?? 8);
       const xpPer = Number((window as any).__XP ?? 10);
@@ -354,6 +378,11 @@ export default function DailyMissionPage(){
               <p className="p">문제를 풀면 펫이 성장해요. 오늘도 한 단계 더!</p>
             </div>
             <div className="missionStamp">D-{total - answered}</div>
+          </div>
+          <div className="missionSound">
+            <button className={"btn btnSoft"} onClick={()=>setSoundOn(v=>!v)}>
+              {soundOn ? "소리 켜짐" : "소리 꺼짐"}
+            </button>
           </div>
           <div className="missionProgress">
             <div className="missionProgressBar">
