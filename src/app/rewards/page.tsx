@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { getDailyShop, loadRewards, buySticker, STICKER_CATALOG, PET_SKINS, buySkin, setActiveSkin } from "@/lib/offline";
+import { getDailyShop, loadRewards, buySticker, STICKER_CATALOG, PET_SKINS, buySkin, setActiveSkin, BADGES } from "@/lib/offline";
 import { ymd } from "@/lib/quiz";
 
 export default function RewardsPage(){
   const [rewards, setRewards] = useState(loadRewards());
   const [theme, setTheme] = useState<"space"|"ocean"|"forest">("space");
   const [toast, setToast] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ type: "sticker" | "skin"; id: string } | null>(null);
   const today = useMemo(()=>ymd(new Date()), []);
   const shopItems = useMemo(()=>getDailyShop(today, 3), [today]);
 
@@ -69,9 +70,9 @@ export default function RewardsPage(){
         <div className="rewardsGrid">
           {stickers.map((s)=>(
             <div key={s.id} className={"stickerCard" + (rewards.stickers.includes(s.id) ? " owned" : "")}>
-              <div className="stickerIcon">
+              <button className="stickerIcon stickerBtn" onClick={()=>setPreview({ type: "sticker", id: s.id })} aria-label={`${s.name} 크게 보기`}>
                 <img src={s.image} alt={s.name} />
-              </div>
+              </button>
               <div className="stickerName">{s.name}</div>
               {!rewards.stickers.includes(s.id) && <div className="stickerLock">잠금</div>}
             </div>
@@ -92,7 +93,9 @@ export default function RewardsPage(){
             const owned = rewards.stickers.includes(item.id);
             return (
               <div key={item.id} className="shopCard">
-                <div className="shopIcon" style={{background: sticker.color}} />
+                <button className="shopIcon" onClick={()=>setPreview({ type: "sticker", id: sticker.id })} aria-label={`${sticker.name} 크게 보기`}>
+                  <img src={sticker.image} alt={sticker.name} />
+                </button>
                 <div className="shopName">{sticker.name}</div>
                 <div className="shopPrice">{item.price} 코인</div>
                 <button className="btn btnPrimary" disabled={owned} onClick={()=>handleBuy(item.id, item.price)}>
@@ -116,7 +119,9 @@ export default function RewardsPage(){
             const active = rewards.activeSkin === s.id;
             return (
               <div key={s.id} className="shopCard">
-                <div className="shopIcon" style={{background: s.color}} />
+                <button className="shopIcon" onClick={()=>setPreview({ type: "skin", id: s.id })} aria-label={`${s.name} 스킨 크게 보기`}>
+                  <span className="skinPreview" style={{background: s.color, borderColor: s.accent}} />
+                </button>
                 <div className="shopName">{s.name}</div>
                 <div className="shopPrice">{s.price} 코인</div>
                 {owned ? (
@@ -167,6 +172,58 @@ export default function RewardsPage(){
           </div>
         )}
       </div>
+      <div className="card rewardsBadges">
+        <div className="h2">배지</div>
+        <div className="badgeGrid">
+          {BADGES.map(b => {
+            const owned = rewards.badges.includes(b.id);
+            return (
+              <div key={b.id} className={"badgeCard" + (owned ? " owned" : "")}>
+                <div className="badgeIcon">{b.icon}</div>
+                <div className="badgeName">{b.name}</div>
+                <div className="badgeDesc">{b.desc}</div>
+                {!owned && <div className="badgeLock">잠금</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      {preview && (
+        <div className="previewOverlay" onClick={()=>setPreview(null)}>
+          <div className="previewCard" onClick={(e)=>e.stopPropagation()}>
+            {preview.type === "sticker" ? (() => {
+              const s = STICKER_CATALOG.find(x => x.id === preview.id);
+              if (!s) return null;
+              return (
+                <>
+                  <div className="h2">스티커 미리보기</div>
+                  <div className="previewArt">
+                    <img src={s.image} alt={s.name} />
+                  </div>
+                  <div className="h3">{s.name}</div>
+                  <div className="small">테마: {s.theme === "space" ? "우주" : s.theme === "ocean" ? "바다" : "숲"}</div>
+                </>
+              );
+            })() : (() => {
+              const s = PET_SKINS.find(x => x.id === preview.id);
+              if (!s) return null;
+              return (
+                <>
+                  <div className="h2">스킨 미리보기</div>
+                  <div className="previewArt">
+                    <span className="skinPreview big" style={{background: s.color, borderColor: s.accent}} />
+                  </div>
+                  <div className="h3">{s.name}</div>
+                  <div className="small">{s.price} 코인</div>
+                </>
+              );
+            })()}
+            <div style={{display:"flex", justifyContent:"flex-end", marginTop:14}}>
+              <button className="btn btnPrimary" onClick={()=>setPreview(null)}>닫기</button>
+            </div>
+          </div>
+        </div>
+      )}
       {toast && <div className="toast">{toast}</div>}
     </main>
   );

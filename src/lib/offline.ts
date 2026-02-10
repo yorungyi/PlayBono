@@ -16,6 +16,7 @@ export type RewardState = {
   skins: string[];
   activeSkin?: string;
   logs: RewardLog[];
+  badges: string[];
 };
 
 export type RewardLog = {
@@ -27,6 +28,13 @@ export type RewardLog = {
   stickerId?: string;
   skinId?: string;
 };
+
+export const BADGES: { id: string; name: string; desc: string; icon: string }[] = [
+  { id: "first", name: "첫 도전", desc: "미션 첫 완료!", icon: "🌟" },
+  { id: "perfect", name: "완벽 10개", desc: "10문제 모두 정답!", icon: "🏆" },
+  { id: "streak3", name: "3일 연속", desc: "연속 3일 달성", icon: "🔥" },
+  { id: "streak7", name: "7일 연속", desc: "연속 7일 달성", icon: "🚀" },
+];
 
 export const PET_SKINS: { id: string; name: string; price: number; color: string; accent: string }[] = [
   { id: "sunny", name: "햇살", price: 12, color: "#fde68a", accent: "#fbbf24" },
@@ -59,7 +67,7 @@ type LocalState = {
 };
 
 const LS_KEY = "playbono:v1";
-const defaultRewards: RewardState = { coins: 0, stickers: [], lastDailyRewardYmd: "", skins: ["sunny"], activeSkin: "sunny", logs: [] };
+const defaultRewards: RewardState = { coins: 0, stickers: [], lastDailyRewardYmd: "", skins: ["sunny"], activeSkin: "sunny", logs: [], badges: [] };
 
 function readState(): LocalState {
   if (typeof window === "undefined") {
@@ -77,6 +85,10 @@ function readState(): LocalState {
     if (!parsed.user) parsed.user = defaultUserDoc;
     if (!parsed.daily) parsed.daily = {};
     if (!parsed.rewards) parsed.rewards = defaultRewards;
+    if (!parsed.rewards.logs) parsed.rewards.logs = [];
+    if (!parsed.rewards.skins) parsed.rewards.skins = ["sunny"];
+    if (!parsed.rewards.activeSkin) parsed.rewards.activeSkin = "sunny";
+    if (!parsed.rewards.badges) parsed.rewards.badges = [];
     return parsed;
   } catch {
     const fresh: LocalState = { uid: makeUid(), user: defaultUserDoc, daily: {}, rewards: defaultRewards };
@@ -159,6 +171,15 @@ export function addSticker(id: string) {
   return state.rewards;
 }
 
+export function addBadge(id: string) {
+  const state = readState();
+  if (!state.rewards.badges.includes(id)) {
+    state.rewards.badges.push(id);
+    writeState(state);
+  }
+  return state.rewards;
+}
+
 export function buySkin(id: string, price: number) {
   const state = readState();
   if (state.rewards.coins < price) return { ok: false, rewards: state.rewards };
@@ -233,6 +254,7 @@ export function buySticker(id: string, price: number) {
     state.rewards.stickers.push(id);
   }
   state.rewards.coins -= price;
+  state.rewards.logs.unshift({ id: `sticker-${id}-${Date.now()}`, type: "sticker", title: "스티커 구매", dateYmd: new Date().toISOString().slice(0,10), stickerId: id, coins: -price });
   writeState(state);
   return { ok: true, rewards: state.rewards };
 }

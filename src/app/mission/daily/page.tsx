@@ -6,7 +6,7 @@ import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firest
 import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, nextStage, UserDoc } from "@/lib/model";
 import { Difficulty, generateDailyQuestions, ymd } from "@/lib/quiz";
-import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser, loadRewards, saveRewards, pickRandomStickerId, STICKER_CATALOG, addDailyLog } from "@/lib/offline";
+import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser, loadRewards, saveRewards, pickRandomStickerId, STICKER_CATALOG, addDailyLog, addBadge } from "@/lib/offline";
 
 function clampGrade(n:number): 1|2|3|4 {
   if (n<=1) return 1;
@@ -34,6 +34,11 @@ export default function DailyMissionPage(){
   const [volume, setVolume] = useState(0.4);
   const [flash, setFlash] = useState<"ok"|"no"|null>(null);
   const [jump, setJump] = useState(false);
+  const theme = useMemo(() => {
+    const hash = today.split("-").join("");
+    const n = Number(hash) % 3;
+    return n === 0 ? "space" : n === 1 ? "ocean" : "forest";
+  }, [today]);
 
   const today = useMemo(()=>ymd(new Date()), []);
 
@@ -260,6 +265,12 @@ export default function DailyMissionPage(){
         setReward({ coins: 0 });
       }
 
+      // badges
+      addBadge("first");
+      if (correctCount === qs.length) addBadge("perfect");
+      if (newStreak >= 3) addBadge("streak3");
+      if (newStreak >= 7) addBadge("streak7");
+
       if (localMode) {
         const dailyLocal = { seed: 0, dateYmd: today, questions: qs, answers: next, score };
         saveLocalDaily(dailyLocal);
@@ -342,7 +353,7 @@ export default function DailyMissionPage(){
       : null;
     return (
       <main className="container">
-        <div className="card missionResult">
+        <div className={`card missionResult themeBurst theme-${theme}`}>
           <div className="badge">미션 완료!</div>
           <h1 className="h1" style={{marginTop:10}}>{result.correct}/{result.total} 정답</h1>
           <p className="p">소요 시간: {result.durationSec}초 · 기준: {pass}개 이상 통과</p>
@@ -387,8 +398,8 @@ export default function DailyMissionPage(){
 
   return (
     <main className="container">
-      <div className="missionWrap">
-        <div className="card missionHeaderCard">
+      <div className="missionWrap missionPlay">
+        <div className="card missionHeaderCard missionFestive">
           <div className="missionHeaderTop">
             <div>
               <div className="badge">오늘의 미션</div>
@@ -403,6 +414,11 @@ export default function DailyMissionPage(){
               <span className="eye" />
               <span className="mouth" />
             </div>
+          </div>
+          <div className="missionDecor">
+            <span className="spark a" />
+            <span className="spark b" />
+            <span className="spark c" />
           </div>
           <div className="missionSound">
             <button className={"btn btnSoft"} onClick={()=>setSoundOn(v=>!v)}>
