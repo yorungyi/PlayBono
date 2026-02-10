@@ -1,5 +1,6 @@
 import "./globals.css";
 import StudyNav from "@/components/StudyNav";
+import Script from "next/script";
 
 export const metadata = {
   title: "수학펫 | 오늘 10문제 학습",
@@ -9,6 +10,14 @@ export const metadata = {
 export default function RootLayout({ children }:{ children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2888431394022571"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      </head>
       <body>
         <StudyNav />
         {children}
