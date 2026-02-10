@@ -29,6 +29,13 @@ export default function PetCollectionPage(){
 
   const history = user.petHistory ?? [];
 
+  function medalFor(h: { xp?: number; evoPoints?: number }) {
+    const score = (h.xp ?? 0) + (h.evoPoints ?? 0) * 10;
+    if (score >= 300) return "금메달";
+    if (score >= 180) return "은메달";
+    return "동메달";
+  }
+
   return (
     <main className="container">
       <div className="card" style={{padding:18}}>
@@ -48,6 +55,7 @@ export default function PetCollectionPage(){
               <div key={`${h.generation}-${h.species}-${h.completedAt}`} className="petCard">
                 <PetArt stage="evo2" species={h.species} size={110} />
                 <div className="petMeta">세대 {h.generation} · {h.completedAt}</div>
+                <div className="petMedal">{medalFor(h)}</div>
               </div>
             ))}
           </div>

@@ -13,6 +13,7 @@ export default function PetPage(){
   const [skin, setSkin] = useState(loadRewards().activeSkin ?? "sunny");
   const [localMode, setLocalMode] = useState(false);
   const [choosing, setChoosing] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
 
   const speciesList: { id: PetSpecies; name: string }[] = [
     { id: "chick", name: "병아리" },
@@ -41,7 +42,7 @@ export default function PetPage(){
 
   return (
     <main className="container">
-      <div className="card" style={{padding:18}}>
+      <div className={"card" + (celebrate ? " petCelebrate" : "")} style={{padding:18}}>
         <div className="badge">펫</div>
         <h1 className="h1" style={{marginTop:10}}>알 → 부화 → 진화</h1>
         <p className="p">학습 성취(정답·연속 미션)로 성장합니다.</p>
@@ -75,50 +76,59 @@ export default function PetPage(){
                     새 펫 키우기 시작
                   </button>
                   {choosing && (
-                    <div className="petChooser">
-                      <div className="h3">새 펫 선택</div>
-                      <div className="row" style={{gap:8, marginTop:8}}>
-                        {speciesList.map(s => (
-                          <button
-                            key={s.id}
-                            className="btn"
-                            onClick={async ()=>{
-                              const nextGen = (user.pet.generation ?? 1) + 1;
-                              const today = new Date().toISOString().slice(0,10);
-                              const history = user.petHistory ?? [];
-                      const updated: UserDoc = {
-                        ...user,
-                        pet: { stage: "egg", xp: 0, evoPoints: 0, generation: nextGen, species: s.id },
-                        petHistory: [
-                          { generation: user.pet.generation ?? 1, species: user.pet.species ?? "chick", completedAt: today },
-                          ...history
-                        ]
-                      };
-                              if (localMode) {
-                                saveLocalUser(updated);
+                    <div className="petChoiceOverlay" onClick={()=>setChoosing(false)}>
+                      <div className="petChoiceCard" onClick={(e)=>e.stopPropagation()}>
+                        <div className="h3">새 펫 선택</div>
+                        <div className="row" style={{gap:8, marginTop:8}}>
+                          {speciesList.map(s => (
+                            <button
+                              key={s.id}
+                              className="btn"
+                              onClick={async ()=>{
+                                const nextGen = (user.pet.generation ?? 1) + 1;
+                                const today = new Date().toISOString().slice(0,10);
+                                const history = user.petHistory ?? [];
+                                const updated: UserDoc = {
+                                  ...user,
+                                  pet: { stage: "egg", xp: 0, evoPoints: 0, generation: nextGen, species: s.id },
+                                  petHistory: [
+                                    { generation: user.pet.generation ?? 1, species: user.pet.species ?? "chick", completedAt: today, xp: user.pet.xp, evoPoints: user.pet.evoPoints },
+                                    ...history
+                                  ]
+                                };
+                                if (localMode) {
+                                  saveLocalUser(updated);
+                                  setUser(updated);
+                                  setChoosing(false);
+                                  setCelebrate(true);
+                                  setTimeout(()=>setCelebrate(false), 1200);
+                                  return;
+                                }
+                                const db = getDbClient();
+                                if (!db) return;
+                                const u = await ensureAnonAuth();
+                                const userRef = doc(db, "users", u.uid);
+                                await updateDoc(userRef, {
+                                  "pet.stage": "egg",
+                                  "pet.xp": 0,
+                                  "pet.evoPoints": 0,
+                                  "pet.generation": nextGen,
+                                  "pet.species": s.id,
+                                  "petHistory": updated.petHistory
+                                });
                                 setUser(updated);
                                 setChoosing(false);
-                                return;
-                              }
-                              const db = getDbClient();
-                              if (!db) return;
-                              const u = await ensureAnonAuth();
-                              const userRef = doc(db, "users", u.uid);
-                              await updateDoc(userRef, {
-                                "pet.stage": "egg",
-                                "pet.xp": 0,
-                                "pet.evoPoints": 0,
-                                "pet.generation": nextGen,
-                                "pet.species": s.id,
-                                "petHistory": updated.petHistory
-                              });
-                              setUser(updated);
-                              setChoosing(false);
-                            }}
-                          >
-                            {s.name}
-                          </button>
-                        ))}
+                                setCelebrate(true);
+                                setTimeout(()=>setCelebrate(false), 1200);
+                              }}
+                            >
+                              {s.name}
+                            </button>
+                          ))}
+                        </div>
+                        <div style={{display:"flex", justifyContent:"flex-end", marginTop:12}}>
+                          <button className="btn btnGhost" onClick={()=>setChoosing(false)}>닫기</button>
+                        </div>
                       </div>
                     </div>
                   )}

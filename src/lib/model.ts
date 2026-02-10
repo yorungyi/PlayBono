@@ -9,6 +9,8 @@ export type PetRecord = {
   generation: number;
   species: PetSpecies;
   completedAt: string; // YYYY-MM-DD
+  xp?: number;
+  evoPoints?: number;
 };
 
 export type UserDoc = {
