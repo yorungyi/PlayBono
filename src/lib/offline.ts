@@ -13,7 +13,17 @@ export type RewardState = {
   coins: number;
   stickers: string[];
   lastDailyRewardYmd?: string;
+  skins: string[];
+  activeSkin?: string;
 };
+
+export const PET_SKINS: { id: string; name: string; price: number; color: string; accent: string }[] = [
+  { id: "sunny", name: "햇살", price: 12, color: "#fde68a", accent: "#fbbf24" },
+  { id: "sky", name: "하늘", price: 14, color: "#bae6fd", accent: "#60a5fa" },
+  { id: "mint", name: "민트", price: 14, color: "#bbf7d0", accent: "#34d399" },
+  { id: "berry", name: "베리", price: 16, color: "#fecaca", accent: "#fb7185" },
+  { id: "grape", name: "포도", price: 16, color: "#ddd6fe", accent: "#a78bfa" },
+];
 
 export const STICKER_CATALOG: { id: string; name: string; color: string; theme: "ocean"|"space"|"forest" }[] = [
   { id: "star", name: "반짝별", color: "#ffd166", theme: "space" },
@@ -38,7 +48,7 @@ type LocalState = {
 };
 
 const LS_KEY = "playbono:v1";
-const defaultRewards: RewardState = { coins: 0, stickers: [], lastDailyRewardYmd: "" };
+const defaultRewards: RewardState = { coins: 0, stickers: [], lastDailyRewardYmd: "", skins: ["sunny"], activeSkin: "sunny" };
 
 function readState(): LocalState {
   if (typeof window === "undefined") {
@@ -134,6 +144,26 @@ export function addSticker(id: string) {
     state.rewards.stickers.push(id);
     writeState(state);
   }
+  return state.rewards;
+}
+
+export function buySkin(id: string, price: number) {
+  const state = readState();
+  if (state.rewards.coins < price) return { ok: false, rewards: state.rewards };
+  if (!state.rewards.skins.includes(id)) {
+    state.rewards.skins.push(id);
+  }
+  state.rewards.coins -= price;
+  if (!state.rewards.activeSkin) state.rewards.activeSkin = id;
+  writeState(state);
+  return { ok: true, rewards: state.rewards };
+}
+
+export function setActiveSkin(id: string) {
+  const state = readState();
+  if (!state.rewards.skins.includes(id)) return state.rewards;
+  state.rewards.activeSkin = id;
+  writeState(state);
   return state.rewards;
 }
 

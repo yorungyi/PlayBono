@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, UserDoc } from "@/lib/model";
-import { loadLocalUser } from "@/lib/offline";
+import { loadLocalUser, loadRewards, PET_SKINS, setActiveSkin } from "@/lib/offline";
 
 function PetArt({stage}:{stage:string}){
   const label = stage === "egg" ? "알" : stage === "hatch" ? "병아리" : stage === "evo1" ? "토끼" : "여우";
@@ -23,6 +23,7 @@ function PetArt({stage}:{stage:string}){
 export default function PetPage(){
   const [user, setUser] = useState<UserDoc>(defaultUserDoc);
   const [loading, setLoading] = useState(true);
+  const [skin, setSkin] = useState(loadRewards().activeSkin ?? "sunny");
 
   useEffect(()=>{
     (async ()=>{
@@ -53,7 +54,9 @@ export default function PetPage(){
         ) : (
           <div className="row">
             <div className="col">
-              <PetArt stage={user.pet.stage} />
+              <div className={`petSkinWrap skin-${skin}`}>
+                <PetArt stage={user.pet.stage} />
+              </div>
             </div>
             <div className="col">
               <div className="kpi">
@@ -67,6 +70,27 @@ export default function PetPage(){
                 다음 진화를 위해서는 <b>정답률</b>과 <b>연속 미션</b>이 모두 필요합니다.
                 (학습 루틴을 만들기 위한 설계)
               </p>
+              <div className="hr" />
+              <div className="h3">펫 스킨</div>
+              <div style={{display:"flex", gap:8, flexWrap:"wrap", marginTop:6}}>
+                {PET_SKINS.map(s => {
+                  const owned = loadRewards().skins.includes(s.id);
+                  return (
+                    <button
+                      key={s.id}
+                      className={"btn" + (skin === s.id ? " btnPrimary" : "")}
+                      disabled={!owned}
+                      onClick={()=>{
+                        if (!owned) return;
+                        setActiveSkin(s.id);
+                        setSkin(s.id);
+                      }}
+                    >
+                      {s.name}{!owned ? " (잠금)" : ""}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

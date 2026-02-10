@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { getDailyShop, loadRewards, buySticker, STICKER_CATALOG } from "@/lib/offline";
+import { getDailyShop, loadRewards, buySticker, STICKER_CATALOG, PET_SKINS, buySkin, setActiveSkin } from "@/lib/offline";
 import { ymd } from "@/lib/quiz";
 
 export default function RewardsPage(){
@@ -25,6 +25,22 @@ export default function RewardsPage(){
     }
     setRewards(res.rewards);
     showToast("스티커 획득!");
+  }
+
+  function handleBuySkin(id: string, price: number){
+    const res = buySkin(id, price);
+    if (!res.ok) {
+      showToast("코인이 부족해요!");
+      return;
+    }
+    setRewards(res.rewards);
+    showToast("스킨 획득!");
+  }
+
+  function handleEquipSkin(id: string){
+    const updated = setActiveSkin(id);
+    setRewards(updated);
+    showToast("스킨 적용!");
   }
 
   const stickers = STICKER_CATALOG.filter(s => s.theme === theme);
@@ -79,6 +95,34 @@ export default function RewardsPage(){
                 <button className="btn btnPrimary" disabled={owned} onClick={()=>handleBuy(item.id, item.price)}>
                   {owned ? "보유 중" : "구매"}
                 </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="card rewardsShop">
+        <div>
+          <div className="badge">펫 상점</div>
+          <h2 className="h2" style={{marginTop:6}}>귀여운 스킨으로 꾸며요</h2>
+          <p className="p">코인으로 스킨을 구매하고 바로 적용할 수 있어요.</p>
+        </div>
+        <div className="shopGrid">
+          {PET_SKINS.map(s => {
+            const owned = rewards.skins.includes(s.id);
+            const active = rewards.activeSkin === s.id;
+            return (
+              <div key={s.id} className="shopCard">
+                <div className="shopIcon" style={{background: s.color}} />
+                <div className="shopName">{s.name}</div>
+                <div className="shopPrice">{s.price} 코인</div>
+                {owned ? (
+                  <button className={"btn" + (active ? " btnPrimary" : "")} onClick={()=>handleEquipSkin(s.id)}>
+                    {active ? "사용 중" : "적용"}
+                  </button>
+                ) : (
+                  <button className="btn btnPrimary" onClick={()=>handleBuySkin(s.id, s.price)}>구매</button>
+                )}
               </div>
             );
           })}

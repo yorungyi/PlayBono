@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
@@ -33,6 +33,7 @@ export default function DailyMissionPage(){
   const [soundOn, setSoundOn] = useState(true);
   const [volume, setVolume] = useState(0.4);
   const [flash, setFlash] = useState<"ok"|"no"|null>(null);
+  const [jump, setJump] = useState(false);
 
   const today = useMemo(()=>ymd(new Date()), []);
 
@@ -149,25 +150,33 @@ export default function DailyMissionPage(){
   const progressPct = total ? Math.min(100, Math.round((answered / total) * 100)) : 0;
   const canSubmit = input.trim().length > 0 && Number.isFinite(Number(input));
 
-  function playTone(type: "ok" | "no" | "done"){
+  const okRef = useRef<HTMLAudioElement | null>(null);
+  const noRef = useRef<HTMLAudioElement | null>(null);
+  const doneRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(()=>{
+    okRef.current = new Audio("/sfx/correct.wav");
+    noRef.current = new Audio("/sfx/wrong.wav");
+    doneRef.current = new Audio("/sfx/complete.wav");
+  }, []);
+
+  useEffect(()=>{
+    const v = Math.max(0, Math.min(1, volume));
+    if (okRef.current) okRef.current.volume = v;
+    if (noRef.current) noRef.current.volume = v;
+    if (doneRef.current) doneRef.current.volume = v;
+  }, [volume]);
+
+  function playSound(type: "ok" | "no" | "done"){
     if (!soundOn) return;
-    if (typeof window === "undefined") return;
-    const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    const freq = type === "ok" ? 700 : type === "no" ? 220 : 900;
-    osc.frequency.value = freq;
-    gain.gain.value = 0.0001;
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    gain.gain.exponentialRampToValueAtTime(volume, ctx.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
-    osc.stop(ctx.currentTime + 0.2);
-    osc.onended = () => ctx.close();
+    const a = type === "ok" ? okRef.current : type === "no" ? noRef.current : doneRef.current;
+    if (!a) return;
+    try {
+      a.currentTime = 0;
+      a.play();
+    } catch {
+      // ignore autoplay errors
+    }
   }
 
   async function submit(){
@@ -176,9 +185,13 @@ export default function DailyMissionPage(){
     if (!Number.isFinite(n)) return;
 
     const correct = n === current.answer;
-    playTone(correct ? "ok" : "no");
+    playSound(correct ? "ok" : "no");
     setFlash(correct ? "ok" : "no");
     setTimeout(()=>setFlash(null), 420);
+    if (correct) {
+      setJump(true);
+      setTimeout(()=>setJump(false), 420);
+    }
     const next = [...answers, { id: current.id, userAnswer: n, correct }];
     setAnswers(next);
     setInput("");
@@ -193,7 +206,7 @@ export default function DailyMissionPage(){
       const score = { correct: correctCount, total: qs.length, durationSec };
       setDone(true);
       setResult(score);
-      playTone("done");
+      playSound("done");
 
       const pass = Number((window as any).__PASS ?? 8);
       const xpPer = Number((window as any).__XP ?? 10);
@@ -382,6 +395,13 @@ export default function DailyMissionPage(){
               <p className="p">문제를 풀면 펫이 성장해요. 오늘도 한 단계 더!</p>
             </div>
             <div className="missionStamp">D-{total - answered}</div>
+          </div>
+          <div className="missionMascot">
+            <div className={"miniPet" + (jump ? " jump" : "")}>
+              <span className="eye" />
+              <span className="eye" />
+              <span className="mouth" />
+            </div>
           </div>
           <div className="missionSound">
             <button className={"btn btnSoft"} onClick={()=>setSoundOn(v=>!v)}>

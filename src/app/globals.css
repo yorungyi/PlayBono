@@ -151,6 +151,23 @@ a{color:inherit; text-decoration:none}
   box-shadow:0 8px 18px rgba(255,122,89,.18);
 }
 .missionProgress{margin-top:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.missionMascot{margin-top:8px}
+.miniPet{
+  width:54px; height:54px; border-radius:16px; background:#fff; border:2px solid #fef3c7;
+  display:flex; align-items:center; justify-content:center; gap:8px; position:relative;
+  box-shadow:0 10px 18px rgba(255,183,3,.25);
+}
+.miniPet .eye{width:6px; height:6px; border-radius:50%; background:#1f2937}
+.miniPet .mouth{
+  position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+  width:12px; height:6px; border-radius:0 0 10px 10px; border:2px solid #1f2937; border-top:0;
+}
+.miniPet.jump{animation: miniJump .35s ease}
+@keyframes miniJump{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+  100%{transform:translateY(0)}
+}
 .missionSound{margin-top:10px}
 .missionSound{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
 .missionVolume{display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; color:#9a5a3a}
@@ -419,6 +436,22 @@ a{color:inherit; text-decoration:none}
 .petArt.evo2 .petFace::before{left:4px; transform:rotate(-12deg)}
 .petArt.evo2 .petFace::after{right:4px; transform:rotate(12deg)}
 .petLabel{font-weight:900; color:#7c4a2b}
+.petSkinWrap{display:inline-block}
+.petSkinWrap.skin-sunny .petArt{box-shadow:0 14px 30px rgba(251,191,36,.35)}
+.petSkinWrap.skin-sky .petArt{box-shadow:0 14px 30px rgba(96,165,250,.25)}
+.petSkinWrap.skin-mint .petArt{box-shadow:0 14px 30px rgba(52,211,153,.25)}
+.petSkinWrap.skin-berry .petArt{box-shadow:0 14px 30px rgba(251,113,133,.25)}
+.petSkinWrap.skin-grape .petArt{box-shadow:0 14px 30px rgba(167,139,250,.25)}
+.petSkinWrap.skin-sunny .petFace{border-color:#fef3c7}
+.petSkinWrap.skin-sky .petFace{border-color:#bfdbfe}
+.petSkinWrap.skin-mint .petFace{border-color:#bbf7d0}
+.petSkinWrap.skin-berry .petFace{border-color:#fecdd3}
+.petSkinWrap.skin-grape .petFace{border-color:#ddd6fe}
+.petSkinWrap.skin-sunny .petLabel{color:#b4532a}
+.petSkinWrap.skin-sky .petLabel{color:#1d4ed8}
+.petSkinWrap.skin-mint .petLabel{color:#047857}
+.petSkinWrap.skin-berry .petLabel{color:#be123c}
+.petSkinWrap.skin-grape .petLabel{color:#6d28d9}
 
 @keyframes blink{
   0%, 46%, 48%, 100%{transform:scaleY(1)}
