@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, nextStage, UserDoc } from "@/lib/model";
@@ -35,13 +36,12 @@ export default function DailyMissionPage(){
   const [flash, setFlash] = useState<"ok"|"no"|null>(null);
   const [jump, setJump] = useState(false);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
+  const today = useMemo(()=>ymd(new Date()), []);
   const theme = useMemo(() => {
     const hash = today.split("-").join("");
     const n = Number(hash) % 3;
     return n === 0 ? "space" : n === 1 ? "ocean" : "forest";
   }, [today]);
-
-  const today = useMemo(()=>ymd(new Date()), []);
 
   useEffect(() => {
     (async () => {
@@ -496,7 +496,7 @@ export default function DailyMissionPage(){
             <div className="missionProgressMeta">{answered}/{total} 완료</div>
           </div>
           <div className="missionThemeArt">
-            <img src={`/illustrations/${theme}.svg`} alt={`${theme} 테마`} />
+            <Image src={`/illustrations/${theme}.svg`} alt={`${theme} 테마`} width={420} height={236} unoptimized />
           </div>
           <div className="missionDots">
             {Array.from({length: total}).map((_, i)=>(

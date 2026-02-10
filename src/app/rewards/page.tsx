@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { getDailyShop, loadRewards, buySticker, STICKER_CATALOG, PET_SKINS, buySkin, setActiveSkin, BADGES } from "@/lib/offline";
 import { ymd } from "@/lib/quiz";
@@ -72,7 +73,7 @@ export default function RewardsPage(){
           {stickers.map((s)=>(
             <div key={s.id} className={"stickerCard" + (rewards.stickers.includes(s.id) ? " owned" : "")}>
               <button className="stickerIcon stickerBtn" onClick={()=>setPreview({ type: "sticker", id: s.id })} aria-label={`${s.name} 크게 보기`}>
-                <img src={s.image} alt={s.name} />
+                <Image src={s.image} alt={s.name} width={36} height={36} unoptimized />
               </button>
               <div className="stickerName">{s.name}</div>
               {!rewards.stickers.includes(s.id) && <div className="stickerLock">잠금</div>}
@@ -95,7 +96,7 @@ export default function RewardsPage(){
             return (
               <div key={item.id} className="shopCard">
                 <button className="shopIcon" onClick={()=>setPreview({ type: "sticker", id: sticker.id })} aria-label={`${sticker.name} 크게 보기`}>
-                  <img src={sticker.image} alt={sticker.name} />
+                  <Image src={sticker.image} alt={sticker.name} width={34} height={34} unoptimized />
                 </button>
                 <div className="shopName">{sticker.name}</div>
                 <div className="shopPrice">{item.price} 코인</div>
@@ -186,7 +187,7 @@ export default function RewardsPage(){
             <div key={s.id} className="albumCard flip">
               <div className="albumInner">
                 <div className="albumFront">
-                  <img src={s.image} alt={s.name} />
+                  <Image src={s.image} alt={s.name} width={48} height={48} unoptimized />
                 </div>
                 <div className="albumBack">
                   <div className="albumName">{s.name}</div>
@@ -223,7 +224,7 @@ export default function RewardsPage(){
                 <>
                   <div className="h2">스티커 미리보기</div>
                   <div className="previewArt">
-                    <img src={s.image} alt={s.name} />
+                    <Image src={s.image} alt={s.name} width={90} height={90} unoptimized />
                   </div>
                   <div className="h3">{s.name}</div>
                   <div className="small">테마: {s.theme === "space" ? "우주" : s.theme === "ocean" ? "바다" : "숲"}</div>
