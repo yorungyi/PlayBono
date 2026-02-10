@@ -7,7 +7,7 @@ import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firest
 import { ensureAnonAuth, getDbClient, getRcNumber } from "@/lib/firebase";
 import { defaultUserDoc, stageLabel, nextStage, UserDoc } from "@/lib/model";
 import { Difficulty, generateDailyQuestions, ymd } from "@/lib/quiz";
-import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser, loadRewards, saveRewards, pickRandomStickerId, STICKER_CATALOG, addDailyLog, addBadge, BADGES } from "@/lib/offline";
+import { DailyDoc, getLocalUid, loadLocalDaily, loadLocalUser, saveLocalDaily, saveLocalUser, loadRewards, saveRewards, pickRandomStickerId, STICKER_CATALOG, addDailyLog, addBadge, BADGES, updateQuestsOnDaily } from "@/lib/offline";
 
 function clampGrade(n:number): 1|2|3|4 {
   if (n<=1) return 1;
@@ -330,6 +330,8 @@ export default function DailyMissionPage(){
       } else {
         setReward({ coins: 0 });
       }
+
+      updateQuestsOnDaily(today, correctCount, qs.length);
 
       // badges
       const newly: string[] = [];

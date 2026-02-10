@@ -19,6 +19,27 @@ export type RewardState = {
   badges: string[];
 };
 
+export type ParentGoals = {
+  dailyQuestions: number;
+  weeklySessions: number;
+};
+
+export type QuestState = {
+  daily: {
+    dateYmd: string;
+    completed: boolean;
+    perfect: boolean;
+  };
+  weekly: {
+    weekId: string;
+    sessions: number;
+  };
+  season: {
+    seasonId: string;
+    xp: number;
+  };
+};
+
 export type RewardLog = {
   id: string;
   type: "daily" | "sticker" | "skin";
@@ -64,18 +85,44 @@ type LocalState = {
   user: UserDoc;
   daily: Record<string, DailyDoc>;
   rewards: RewardState;
+  goals: ParentGoals;
+  quests: QuestState;
 };
 
 const LS_KEY = "playbono:v1";
 const defaultRewards: RewardState = { coins: 0, stickers: [], lastDailyRewardYmd: "", skins: ["sunny"], activeSkin: "sunny", logs: [], badges: [] };
+const defaultGoals: ParentGoals = { dailyQuestions: 10, weeklySessions: 3 };
+
+function weekIdFor(d: Date) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  const weekNo = Math.ceil((((t.getTime() - yearStart.getTime())/86400000)+1)/7);
+  return `${t.getUTCFullYear()}-W${String(weekNo).padStart(2,"0")}`;
+}
+
+function seasonIdFor(d: Date) {
+  const y = d.getFullYear();
+  const q = Math.floor(d.getMonth()/3) + 1;
+  return `${y}-S${q}`;
+}
 
 function readState(): LocalState {
   if (typeof window === "undefined") {
-    return { uid: "local", user: defaultUserDoc, daily: {}, rewards: defaultRewards };
+    return { uid: "local", user: defaultUserDoc, daily: {}, rewards: defaultRewards, goals: defaultGoals, quests: {
+      daily: { dateYmd: "", completed: false, perfect: false },
+      weekly: { weekId: "", sessions: 0 },
+      season: { seasonId: "", xp: 0 }
+    }};
   }
   const raw = localStorage.getItem(LS_KEY);
   if (!raw) {
-    const fresh: LocalState = { uid: makeUid(), user: defaultUserDoc, daily: {}, rewards: defaultRewards };
+    const fresh: LocalState = { uid: makeUid(), user: defaultUserDoc, daily: {}, rewards: defaultRewards, goals: defaultGoals, quests: {
+      daily: { dateYmd: "", completed: false, perfect: false },
+      weekly: { weekId: "", sessions: 0 },
+      season: { seasonId: "", xp: 0 }
+    }};
     localStorage.setItem(LS_KEY, JSON.stringify(fresh));
     return fresh;
   }
@@ -89,9 +136,21 @@ function readState(): LocalState {
     if (!parsed.rewards.skins) parsed.rewards.skins = ["sunny"];
     if (!parsed.rewards.activeSkin) parsed.rewards.activeSkin = "sunny";
     if (!parsed.rewards.badges) parsed.rewards.badges = [];
+    if (!parsed.goals) parsed.goals = defaultGoals;
+    if (!parsed.quests) {
+      parsed.quests = {
+        daily: { dateYmd: "", completed: false, perfect: false },
+        weekly: { weekId: "", sessions: 0 },
+        season: { seasonId: "", xp: 0 }
+      };
+    }
     return parsed;
   } catch {
-    const fresh: LocalState = { uid: makeUid(), user: defaultUserDoc, daily: {}, rewards: defaultRewards };
+    const fresh: LocalState = { uid: makeUid(), user: defaultUserDoc, daily: {}, rewards: defaultRewards, goals: defaultGoals, quests: {
+      daily: { dateYmd: "", completed: false, perfect: false },
+      weekly: { weekId: "", sessions: 0 },
+      season: { seasonId: "", xp: 0 }
+    }};
     localStorage.setItem(LS_KEY, JSON.stringify(fresh));
     return fresh;
   }
@@ -146,6 +205,28 @@ export function listLocalDaily(limit = 7): DailyDoc[] {
 export function loadRewards(): RewardState {
   const state = readState();
   return state.rewards ?? defaultRewards;
+}
+
+export function loadGoals(): ParentGoals {
+  const state = readState();
+  return state.goals ?? defaultGoals;
+}
+
+export function saveGoals(goals: ParentGoals) {
+  const state = readState();
+  state.goals = goals;
+  writeState(state);
+}
+
+export function loadQuests(): QuestState {
+  const state = readState();
+  return state.quests;
+}
+
+export function saveQuests(quests: QuestState) {
+  const state = readState();
+  state.quests = quests;
+  writeState(state);
 }
 
 export function saveRewards(rewards: RewardState) {
@@ -214,6 +295,34 @@ export function addDailyLog(dateYmd: string, coins: number, stickerId?: string) 
   state.rewards.logs = state.rewards.logs.slice(0, 30);
   writeState(state);
   return state.rewards;
+}
+
+export function updateQuestsOnDaily(dateYmd: string, correct: number, total: number) {
+  const state = readState();
+  const d = new Date(dateYmd);
+  const w = weekIdFor(d);
+  const s = seasonIdFor(d);
+
+  if (state.quests.daily.dateYmd !== dateYmd) {
+    state.quests.daily = { dateYmd, completed: true, perfect: correct === total };
+  } else {
+    state.quests.daily.completed = true;
+    if (correct === total) state.quests.daily.perfect = true;
+  }
+
+  if (state.quests.weekly.weekId !== w) {
+    state.quests.weekly = { weekId: w, sessions: 1 };
+  } else {
+    state.quests.weekly.sessions += 1;
+  }
+
+  if (state.quests.season.seasonId !== s) {
+    state.quests.season = { seasonId: s, xp: 0 };
+  }
+  state.quests.season.xp += correct;
+
+  writeState(state);
+  return state.quests;
 }
 
 export function pickRandomStickerId(owned: string[]) {

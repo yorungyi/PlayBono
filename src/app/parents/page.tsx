@@ -5,7 +5,7 @@ import ParentGate from "@/components/ParentGate";
 import { ensureAnonAuth, getDbClient } from "@/lib/firebase";
 import { collection, doc, getDoc, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { defaultUserDoc, UserDoc } from "@/lib/model";
-import { listLocalDaily, loadLocalUser } from "@/lib/offline";
+import { listLocalDaily, loadLocalUser, loadGoals, saveGoals } from "@/lib/offline";
 
 type DailyScore = { id:string; score?: { correct:number; total:number; durationSec:number } };
 
@@ -14,6 +14,7 @@ export default function ParentsPage(){
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<UserDoc>(defaultUserDoc);
   const [recent, setRecent] = useState<DailyScore[]>([]);
+  const [goals, setGoals] = useState(loadGoals());
 
   useEffect(()=>{
     if (!passed) return;
@@ -24,6 +25,7 @@ export default function ParentsPage(){
         setUser(localUser);
         const items = listLocalDaily(7).map(d => ({ id: d.dateYmd, score: d.score }));
         setRecent(items);
+        setGoals(loadGoals());
         setLoading(false);
         return;
       }
@@ -105,6 +107,37 @@ export default function ParentsPage(){
               <li>진화는 정답률뿐 아니라 연속 미션도 필요해 “루틴”을 만듭니다.</li>
               <li>광고는 워크시트/연습(학습 콘텐츠) 페이지에만 제한적으로 노출됩니다.</li>
             </ul>
+
+            <div className="hr" />
+            <div className="h2">학습 목표 설정</div>
+            <div className="p">아이에게 맞는 목표를 설정해 주세요.</div>
+            <div style={{display:"flex", gap:10, flexWrap:"wrap", marginTop:8}}>
+              <label className="small">
+                하루 목표 문제 수
+                <input
+                  className="input"
+                  type="number"
+                  min="5"
+                  max="50"
+                  value={goals.dailyQuestions}
+                  onChange={(e)=>setGoals(prev=>({ ...prev, dailyQuestions: Number(e.target.value) }))}
+                />
+              </label>
+              <label className="small">
+                주간 목표 횟수
+                <input
+                  className="input"
+                  type="number"
+                  min="1"
+                  max="7"
+                  value={goals.weeklySessions}
+                  onChange={(e)=>setGoals(prev=>({ ...prev, weeklySessions: Number(e.target.value) }))}
+                />
+              </label>
+            </div>
+            <div style={{display:"flex", gap:8, marginTop:10}}>
+              <button className="btn btnPrimary" onClick={()=>saveGoals(goals)}>목표 저장</button>
+            </div>
           </>
         )}
       </div>

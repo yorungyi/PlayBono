@@ -34,6 +34,8 @@ export default function StudyNav(){
         <div className="navLinks">
           <A href="/" label="홈" />
           <A href="/mission/daily" label="오늘의 미션" />
+          <A href="/quests" label="퀘스트" />
+          <A href="/season" label="시즌" />
           <A href="/rewards" label="스티커" />
           <A href="/worksheets/1/add/easy" label="워크시트" />
           <A href="/pet" label="펫" />

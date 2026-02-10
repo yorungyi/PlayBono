@@ -640,6 +640,26 @@ a{color:inherit; text-decoration:none}
 .petBubble{font-family:var(--font-title); font-size:44px; font-weight:800}
 .heroPet{display:flex; align-items:center; justify-content:center}
 
+.questGrid{display:grid; gap:12px; grid-template-columns:repeat(1, 1fr)}
+@media(min-width:700px){ .questGrid{grid-template-columns:repeat(3, 1fr)} }
+.questCard{
+  padding:14px; border-radius:16px; border:1px solid #e5e7eb; background:#fff;
+  display:grid; gap:6px;
+}
+.questState{font-weight:900; color:#9a5a3a}
+.questState.on{color:#15803d}
+.questBar{height:10px; background:#fdebd4; border-radius:999px; overflow:hidden; border:1px solid #ffd8c7}
+.questBar span{display:block; height:100%; background:linear-gradient(90deg, #ff7a59, #ffb703)}
+
+.seasonBar{height:12px; background:#e0f2fe; border-radius:999px; overflow:hidden; border:1px solid #bae6fd; margin-top:10px}
+.seasonBar span{display:block; height:100%; background:linear-gradient(90deg, #60a5fa, #34d399)}
+.seasonGrid{display:grid; gap:10px; grid-template-columns:repeat(2, 1fr)}
+@media(min-width:700px){ .seasonGrid{grid-template-columns:repeat(5, 1fr)} }
+.seasonCard{
+  padding:12px; border-radius:14px; border:1px solid #e5e7eb; background:#fff;
+}
+.seasonCard.on{border-color:#86efac; background:linear-gradient(180deg, #fff 0%, #ecfccb 100%)}
+
 .section{margin-top:26px}
 .sectionHeader{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}
 .featureGrid{display:grid; gap:12px; grid-template-columns:1fr}
