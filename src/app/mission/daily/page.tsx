@@ -243,11 +243,21 @@ export default function DailyMissionPage(){
   }
 
   function playTheme(){
-    if (!soundOn || !themeRef.current) return;
+    if (!soundOn) return;
+    const src = `/sfx/theme_${theme}.wav`;
+    let a = themeRef.current;
+    if (!a) {
+      a = new Audio(src);
+      themeRef.current = a;
+    }
     try {
-      themeRef.current.currentTime = 0;
-      themeRef.current.play();
-    } catch {}
+      a.muted = false;
+      a.volume = Math.max(0, Math.min(1, volume)) * 0.6;
+      a.currentTime = 0;
+      a.play();
+    } catch (err) {
+      console.warn("theme audio failed", err);
+    }
   }
 
   async function submit(){
